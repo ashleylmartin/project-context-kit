@@ -68,6 +68,14 @@ one-line rule for conventions. If describing it needs a real tradeoff
 explanation, that's a decision — route it through "Record a decision"
 below instead of padding the token/convention entry.
 
+If the token is also declared literally in a second file (e.g. a CSS
+variable mirroring this doc's value) and `config.json`'s `semanticRegistry`
+is set, add a matching `valueAgreement` entry there in the same turn — see
+`../semantic-registry/SKILL.md` Step 2. Same for a convention naming a
+specific code symbol: add a `codeReferences` entry. Skip silently if
+`semanticRegistry` isn't configured; the doc entry itself is written
+either way.
+
 ### Challenge a design decision / sharpen a fuzzy rule
 
 When two components disagree on spacing, a "rule" is really just a vibe
@@ -115,8 +123,9 @@ truth.
 - No per-language AST cross-reference registry, no lint-codegen, no
   automated hex-parity checking across CSS files — that stays a Non-Goal
   for this plugin. `semantic-registry` (separate, opt-in subskill) covers
-  the generalizable grep-based version of that idea; this skill is the
-  authoring/discipline side only.
+  the generalizable grep-based version of that idea, populated inline by
+  this skill (see above) — this skill is the authoring/discipline side
+  only, never the checker itself.
 - Does not replace `AGENTS.md` or an architecture doc — this owns visual
   and interaction rules specifically.
 

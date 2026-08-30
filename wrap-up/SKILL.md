@@ -133,6 +133,12 @@ Run each command in `config.json`'s `qualityGate`, in order, stopping and
 reporting on the first failure. If the array is empty, skip this step and
 say so in the summary (rather than silently doing nothing unremarked).
 
+If the project opted into `semantic-registry`, its checker command is just
+one more entry in this same array — it runs in order with everything
+else, no special-casing. A failure here means documented terminology/
+design claims have drifted from the code (or a sibling doc) — see
+`../semantic-registry/SKILL.md` for what each finding kind means.
+
 If any project-level pre-commit hook already runs these same checks on every
 commit, this step is a belt-and-suspenders re-run for the session as a
 whole, not a replacement for the hook.

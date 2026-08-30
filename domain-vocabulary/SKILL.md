@@ -65,6 +65,13 @@ synonyms that should NOT be used interchangeably once this term is defined
 distinguishes those). Leave `Avoid` blank if there's no real synonym
 confusion risk.
 
+If `Avoid` is non-empty and `config.json`'s `semanticRegistry` is set
+(the project opted into `semantic-registry`), also add a matching
+`bannedSynonyms` entry there in the same turn — see
+`../semantic-registry/SKILL.md` Step 2. Skip this silently if
+`semanticRegistry` isn't configured; the glossary row itself is written
+either way.
+
 If asked to look up a term, just read the table and answer directly — no
 need to route through an interview for a read-only lookup.
 
@@ -99,7 +106,9 @@ if a decision needs more structure than this, it probably belongs in
 
 - Does not enforce anything automatically — `semantic-registry` (a
   separate, opt-in subskill) is what greps the codebase for banned
-  synonyms; this skill is the authoring/discipline side, not the checker.
+  synonyms; this skill is the authoring/discipline side, populating that
+  registry inline as terms are defined (see above), not the checker
+  itself.
 - Does not replace `AGENTS.md` or an architecture doc — this owns
   terminology and naming decisions specifically, nothing else.
 - Does not batch — every capability above writes inline, the moment it's

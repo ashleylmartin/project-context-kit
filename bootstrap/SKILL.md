@@ -162,6 +162,15 @@ so confirming is a single click, not free-form typing:
    or the description mentions UI/design work) or a `DESIGN.md`-named file
    already exists. On yes, load `../design-soul/SKILL.md` Step 1 to seed
    the doc and register it with `"kind": "design"` (see Step 6 below).
+9. **Semantic-registry drift checking** — only ask this at all if item 7
+   and/or item 8 was answered yes; otherwise skip silently (nothing to
+   register yet — this check's whole purpose is verifying claims made by
+   those two docs). When offered, default to "yes" if either doc opt-in
+   was accepted, since the checker is a no-op on an empty registry and
+   only ever adds value as terms/tokens accumulate. On yes, load
+   `../semantic-registry/SKILL.md` Step 1 to seed an empty registry, set
+   `semanticRegistry` in `config.json`, and add its checker command to
+   `qualityGate`.
 
 If more than 4 sections still need a live question after skips, split
 across multiple `ask_user_question` calls (max 4 questions per call) rather
@@ -275,6 +284,10 @@ that doc per `../domain-vocabulary/SKILL.md` Step 1 and add its
 If the user opted into design-soul discipline (Step 3, item 8), seed that
 doc per `../design-soul/SKILL.md` Step 1 and add its `canonicalDocs` entry
 with `"kind": "design"`.
+
+If the user opted into semantic-registry (Step 3, item 9), seed the empty
+registry per `../semantic-registry/SKILL.md` Step 1, set `semanticRegistry`
+in `config.json`, and add its checker command to `qualityGate`.
 
 ## Step 7: Seed the memory file
 

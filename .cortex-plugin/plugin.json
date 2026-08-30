@@ -26,6 +26,7 @@
     "./design-soul",
     "./frontier-interview",
     "./interview-me",
-    "./interview-with-docs"
+    "./interview-with-docs",
+    "./semantic-registry"
   ]
 }
