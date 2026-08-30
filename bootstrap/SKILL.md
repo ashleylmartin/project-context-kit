@@ -38,6 +38,42 @@ the memory file — without git there is nothing to sync). Ask them to
 `git init` first, or skip bootstrap if this is intentionally a single-machine
 scratch project that doesn't need memory continuity.
 
+## Step 1b: Greenfield check
+
+Detect whether this is a genuinely empty project — no package-manager
+manifest and no source files, just `.git` and maybe a `README`:
+
+```bash
+find . -maxdepth 2 -type f ! -path './.git/*' ! -name '.gitignore' ! -iname 'readme*' 2>/dev/null | head -20
+```
+
+If that returns nothing, this is greenfield — run this branch before
+continuing to Step 2 (the files it creates then get picked up by Step 2's
+exploration, so the rest of the interview gets real defaults instead of
+empty-project fallbacks):
+
+1. **Short pre-interview** — one `ask_user_question` call, batching what
+   fits (max 4 items): what are you building (one line), stack/language,
+   and package manager (only if the stack has more than one common choice).
+2. **Minimal skeleton only** — not a framework generator:
+   - One manifest file matching the chosen package manager (`package.json`,
+     `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) with just name/version
+     — no dependencies unless the user already named one they know they
+     need.
+   - One placeholder entry file (`index.js`, `main.py`, `main.go`, etc.)
+     with a single trivial stub — not real feature code.
+   - `.gitignore` for the chosen stack's common ignores.
+   - A `README.md` stub if one doesn't already exist (title + the one-line
+     description from the pre-interview).
+3. **Do not** scaffold test setup, CI config, linting config, or folder
+   structure beyond the single entry file — that's exactly the
+   framework-generator behavior this branch avoids. The project grows its
+   own structure as real code gets written; this only gives Step 2
+   something non-empty to find.
+
+If the directory isn't empty, skip this step entirely and go straight to
+Step 2.
+
 ## Step 2: Explore before asking
 
 Gather everything derivable from the repo itself first, so the interview
@@ -269,6 +305,7 @@ project's memory system works."
 
 ## Stopping Points
 
+- ✋ Step 1b: pre-interview answers confirmed before scaffolding a greenfield skeleton
 - ✋ Step 3: any live interview question confirmed before moving on
 - ✋ Step 4: full draft confirmed before anything is written to disk
 - ✋ Step 9: new files surfaced, but not committed without the user's go-ahead
