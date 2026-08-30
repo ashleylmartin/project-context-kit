@@ -1,6 +1,7 @@
 ---
 name: bootstrap
 description: "One-time setup of the project-memory system in a new project: creates the config file, the budgeted memory file, the memory README, and (optionally) a lightweight ownership-map doc and a minimal conventions doc. Run this before session-start or wrap-up will work. Triggers: bootstrap memory, set up project memory, init memory system, memory bootstrap, set up session-start and wrap-up."
+disable-model-invocation: true
 ---
 
 # Project Memory — Bootstrap
@@ -37,46 +38,86 @@ the memory file — without git there is nothing to sync). Ask them to
 `git init` first, or skip bootstrap if this is intentionally a single-machine
 scratch project that doesn't need memory continuity.
 
-## Step 2: Interview
+## Step 2: Explore before asking
 
-Ask the user (batch these into one exchange where possible):
+Gather everything derivable from the repo itself first, so the interview
+below only asks about what genuinely can't be inferred — never re-ask for
+something already visible on disk:
 
-1. **Project name** — used in the memory file's heading and commit context.
-2. **Quality gate commands** — what should `wrap-up` run before considering
-   a session's work verified? (e.g. `npm run lint && npm test`, `pytest`,
-   `cargo test`, or "none yet" — an empty gate is valid for early-stage
-   projects).
-3. **Canonical docs** — does the project already have (or plan to have) a
-   file like `AGENTS.md`/`CONTRIBUTING.md`/`ARCHITECTURE.md` that owns
-   commands, conventions, or architecture? List any that exist. If none
-   exist, offer to scaffold a minimal one (see Step 4).
-4. **Ownership-map doc** — for projects with several canonical docs (design
-   system rules, domain vocabulary, ADRs, etc.) that could plausibly
-   overlap, ask whether they want a lightweight ownership-map doc (a single
-   "who owns what, read this first" index) to prevent fragmentation. Skip
-   this for small/simple projects — one `AGENTS.md` and memory's own budget
-   discipline is enough; the ownership-map doc earns its keep only once
-   there are 2+ canonical docs whose scope could overlap.
-5. **Plan tracking** — does the project track in-flight work as files
-   anywhere (`.snowflake/cortex/plans/`, a `specs/`/`changes/` directory,
-   PRD files)? List the glob(s), or "none" if work isn't tracked as files.
-6. **Release notes** — do stakeholders (not just developers) need a running
-   "what's new" page? If yes, `wrap-up` can maintain one automatically —
-   a single self-contained HTML file, written for a non-technical audience.
-   Each wrap appends one new dated entry and also tidies the page: old
-   entries collapse into a summary, and content later found stale gets
-   removed — a living doc, not a one-way append log. See
-   `../references/release-notes.md` for exactly how. Default: skip this
-   (most projects don't need it) unless the user has an actual audience in
-   mind for it.
+```bash
+basename "$PWD"
+ls AGENTS.md CONTRIBUTING.md ARCHITECTURE.md CONTEXT.md DESIGN.md 2>/dev/null
+cat package.json 2>/dev/null | grep -A6 '"scripts"'
+ls Makefile pyproject.toml Cargo.toml go.mod 2>/dev/null
+find .snowflake/cortex/plans specs changes docs/plans -maxdepth 1 -type f 2>/dev/null | grep -v /archive/
+```
 
-**⚠️ STOP**: Confirm these answers before writing anything.
+Use the results to pre-fill a recommended default for every section in Step
+3 — e.g. a found `package.json` with `lint`/`test` scripts becomes the
+quality-gate default; a found `AGENTS.md` becomes the canonical-docs answer
+with nothing to ask; a non-empty `.snowflake/cortex/plans/` becomes the
+plan-tracking default. Note which sections were fully answered by
+exploration — those get skipped in Step 3, not re-asked.
 
-## Step 3: Write `config.json`
+## Step 3: Interview — one section at a time, default-led
+
+Ask via `ask_user_question`, **one section per call**, in this order,
+**skipping any section Step 2 already answered with confidence** (state the
+inferred value inline as part of the running summary instead of asking).
+Every question that's still asked must lead with the recommended default
+from Step 2 (or the universal fallback below if exploration found nothing)
+so confirming is a single click, not free-form typing:
+
+1. **Project name** — default: repo directory basename (or `package.json`/
+   `pyproject.toml` name field if found). Used in the memory file's heading
+   and commit context.
+2. **Quality gate commands** — default: the `lint`/`test` scripts found in
+   Step 2 (e.g. `npm run lint && npm test`), or the stack's obvious
+   convention (`pytest`, `cargo test`) if a manifest file was found without
+   inspectable scripts. Fallback default: "none yet" — an empty gate is
+   valid for early-stage projects. Skip asking if scripts were confidently
+   found; just confirm the derived command inline.
+3. **Canonical docs** — skip asking entirely if Step 2 found an existing
+   `AGENTS.md`/`CONTRIBUTING.md`/`ARCHITECTURE.md` — just report which
+   file(s) were found and what each owns (ask only if what it owns isn't
+   obvious from a quick read). If none exist, ask with the default being
+   "scaffold a minimal `AGENTS.md`" (see Step 5) — that's almost always the
+   right call for a new project; "skip for now" is the alternative.
+4. **Ownership-map doc** — only ask this at all if Step 3.3 produced 2+
+   canonical docs whose scope could plausibly overlap; otherwise skip
+   silently (default: not needed — one `AGENTS.md` plus memory's own budget
+   discipline is enough for a single-doc project). When asked, default to
+   "yes, add the lightweight index."
+5. **Plan tracking** — default: the glob matching whatever directory Step 2
+   found files in (e.g. `.snowflake/cortex/plans/*.plan.md`). If Step 2
+   found nothing, default is "none" — skip asking and just confirm that
+   default inline rather than prompting, unless the user's project type
+   makes file-tracked plans likely (ask in that ambiguous case only).
+6. **Release notes** — default: skip (most projects don't need a
+   stakeholder-facing page). Only ask if there's a plausible non-developer
+   audience signal (e.g. a `CHANGELOG.md` already exists, or the project
+   name/description suggests an external audience) — otherwise skip
+   silently and note the default inline.
+
+If more than 4 sections still need a live question after skips, split
+across multiple `ask_user_question` calls (max 4 questions per call) rather
+than dropping any.
+
+## Step 4: Show the draft, then confirm
+
+Before writing anything, render a single draft covering every file this run
+will produce: `config.json`'s full contents, the seeded memory file, the
+memory README, and any scaffolded canonical/ownership doc content. Show it
+as one consolidated preview and ask for explicit go-ahead (or targeted
+edits) before Step 5 writes anything to disk.
+
+**⚠️ STOP**: Draft confirmed before writing anything.
+
+## Step 5: Write `config.json`
 
 Load `../references/config-schema.md` for the exact field list and
 validation rules, then write `.snowflake/cortex/memory/config.json` using the
-interview answers. Defaults if the user has no strong preference:
+confirmed draft. Defaults if the user has no strong preference:
 
 - `budgetLines: 80`, `budgetKB: 6` (comp-in-a-box's proven defaults — big
   enough for real session state, small enough to force pruning).
@@ -93,7 +134,7 @@ interview answers. Defaults if the user has no strong preference:
 - `commitFooter`: the standard Cortex Code attribution footer (see
   `config-schema.md` example) unless the user wants something else.
 
-## Step 4: Seed canonical docs (only if requested in Step 2)
+## Step 6: Seed canonical docs (only if requested in Step 3)
 
 If the user has no canonical doc yet and wants one scaffolded, create a
 minimal conventions doc (name it what they prefer — `AGENTS.md` is the
@@ -117,7 +158,7 @@ Do not invent content for sections the project doesn't have yet — an empty
 heading is a better signal than a fabricated one. Set this file as the
 `patternPromotionTarget` in `config.json`.
 
-If the user requested an ownership-map doc (Step 2, item 4), create a scaled
+If the user requested an ownership-map doc (Step 3, item 4), create a scaled
 down version — this does NOT need comp-in-a-box's full weight (cold-start
 read order across 6+ docs); a new project needs only:
 
@@ -139,7 +180,7 @@ duplication rather than adding a third copy.
 Set this path as `ownershipDoc` in `config.json`, and add it as its own
 `canonicalDocs` entry (it owns "doc ownership routing").
 
-## Step 5: Seed the memory file
+## Step 7: Seed the memory file
 
 Load `../references/memory-budget.md` for the budget rules, then write
 `config.json`'s `memoryFile` path:
@@ -161,7 +202,7 @@ Keep it well under budget — this is a seed, not a filled-in file. Padding it
 with placeholder content defeats the discipline this system exists to
 enforce.
 
-## Step 6: Write the memory README
+## Step 8: Write the memory README
 
 Write `config.json`'s `memoryReadme` path:
 
@@ -209,17 +250,17 @@ you suspect the two have already diverged.
 
 Fill in the bracketed placeholders from the actual `config.json` values.
 
-## Step 7: Git-track everything
+## Step 9: Git-track everything
 
 ```bash
 git add .snowflake/cortex/memory/config.json .snowflake/cortex/memory/<memoryFile-basename> .snowflake/cortex/memory/README.md
-# plus any scaffolded canonical/ownership docs from Step 4
+# plus any scaffolded canonical/ownership docs from Step 6
 ```
 
 Do not commit yet — surface the new files to the user and let them commit
 (or run `wrap-up`, which will commit as part of its normal flow).
 
-## Step 8: Report and hand off
+## Step 10: Report and hand off
 
 Summarize what was created (file list), confirm the config values chosen,
 and tell the user: "Run `session-start` at the beginning of future sessions,
@@ -228,8 +269,9 @@ project's memory system works."
 
 ## Stopping Points
 
-- ✋ Step 2: interview answers confirmed before writing anything
-- ✋ Step 7: new files surfaced, but not committed without the user's go-ahead
+- ✋ Step 3: any live interview question confirmed before moving on
+- ✋ Step 4: full draft confirmed before anything is written to disk
+- ✋ Step 9: new files surfaced, but not committed without the user's go-ahead
 
 ## Output
 
