@@ -21,6 +21,7 @@
     "./session-start",
     "./wrap-up",
     "./doctor",
-    "./help"
+    "./help",
+    "./domain-vocabulary"
   ]
 }

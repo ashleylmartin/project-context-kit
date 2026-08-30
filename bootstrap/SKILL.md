@@ -134,6 +134,12 @@ so confirming is a single click, not free-form typing:
    audience signal (e.g. a `CHANGELOG.md` already exists, or the project
    name/description suggests an external audience) — otherwise skip
    silently and note the default inline.
+7. **Domain-vocabulary discipline** — default: skip for a brand-new/small
+   project (nothing to formalize yet); default to "yes" if Step 2 found
+   signs of existing domain complexity (a found `CONTEXT.md`/glossary-named
+   file, or a description mentioning specialized terminology). On yes, load
+   `../domain-vocabulary/SKILL.md` Step 1 to seed the doc and register it in
+   `config.json` with `"kind": "vocabulary"` (see Step 6 below).
 
 If more than 4 sections still need a live question after skips, split
 across multiple `ask_user_question` calls (max 4 questions per call) rather
@@ -215,6 +221,10 @@ duplication rather than adding a third copy.
 
 Set this path as `ownershipDoc` in `config.json`, and add it as its own
 `canonicalDocs` entry (it owns "doc ownership routing").
+
+If the user opted into domain-vocabulary discipline (Step 3, item 7), seed
+that doc per `../domain-vocabulary/SKILL.md` Step 1 and add its
+`canonicalDocs` entry with `"kind": "vocabulary"`.
 
 ## Step 7: Seed the memory file
 

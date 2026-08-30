@@ -18,7 +18,8 @@ silently).
   "budgetKB": 6,
   "ownershipDoc": "docs/KNOWLEDGE_MAP.md",
   "canonicalDocs": [
-    { "path": "AGENTS.md", "owns": "commands, structure, conventions, gotchas" }
+    { "path": "AGENTS.md", "owns": "commands, structure, conventions, gotchas" },
+    { "path": "CONTEXT.md", "owns": "domain vocabulary, glossary, ADR-lite decisions", "kind": "vocabulary" }
   ],
   "planSources": [".snowflake/cortex/plans/*.plan.md"],
   "qualityGate": ["npm run lint", "npm test"],
@@ -37,7 +38,7 @@ silently).
 | `budgetLines` | number | Soft cap on line count. Advisory on its own — see `budgetKB`. |
 | `budgetKB` | number | Hard cap on file size. **Check both** — a dozen paragraph-length bullets can pass a line-count check while blowing past the KB budget. This is the actual over-budget signal that triggers synthesis in `wrap-up`. |
 | `ownershipDoc` | string or null | Path to the "one concept, one home" ownership-map doc, if the project has one (created by `bootstrap` on request). Null if the project intentionally skips this — `wrap-up`'s pattern-promotion check then just targets `patternPromotionTarget` directly. |
-| `canonicalDocs` | array of `{path, owns}` | What each canonical doc is authoritative for. `wrap-up` uses this to decide whether something belongs in memory (if it's already covered here, prune it from memory) or should be promoted here instead. |
+| `canonicalDocs` | array of `{path, owns, kind?}` | What each canonical doc is authoritative for. `wrap-up` uses this to decide whether something belongs in memory (if it's already covered here, prune it from memory) or should be promoted here instead. Optional `kind` tags a doc's discipline for skills that need to find it by role rather than by hardcoded path: `"vocabulary"` (domain-vocabulary's glossary/ADR doc), `"design"` (design-soul's visual/interaction rules doc), or omitted/`"other"` for anything else (e.g. `AGENTS.md`). At most one entry should carry a given `kind` — if a project has two, the domain-vocabulary/design-soul skills use whichever `bootstrap` registered as the active one and flag the ambiguity rather than guessing. |
 | `planSources` | array of glob patterns | Where in-flight plans/specs live. `wrap-up`'s plan-hygiene step scans all of these. Empty array is valid — means the project does not track plans as files. |
 | `qualityGate` | array of shell commands | Run in order during `wrap-up`'s quality gate step. Empty array means skip the gate (e.g. project has no build/test step yet). |
 | `patternPromotionTarget` | string | Doc that new cross-cutting patterns get appended to when `wrap-up`'s "pattern check" says yes. Usually one of `canonicalDocs`. |
