@@ -1,0 +1,26 @@
+{
+  "name": "project-context-kit",
+  "version": "0.1.0",
+  "description": "Portable, config-driven project context system: budgeted cross-session memory, active docs discipline (domain vocabulary, design soul), a doc-freshness interview, a grep-based semantic drift checker, and cross-machine continuity via git.",
+  "author": {
+    "name": "Ashley Martin"
+  },
+  "repository": "https://github.com/ashleylmartin/project-context-kit",
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "session-continuity",
+    "documentation",
+    "domain-vocabulary",
+    "design-system",
+    "drift-detection",
+    "productivity"
+  ],
+  "skills": [
+    "./bootstrap",
+    "./session-start",
+    "./wrap-up",
+    "./doctor",
+    "./help"
+  ]
+}
