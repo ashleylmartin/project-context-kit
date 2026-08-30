@@ -23,6 +23,9 @@
     "./doctor",
     "./help",
     "./domain-vocabulary",
-    "./design-soul"
+    "./design-soul",
+    "./frontier-interview",
+    "./interview-me",
+    "./interview-with-docs"
   ]
 }

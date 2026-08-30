@@ -87,21 +87,45 @@ If archiving involves a filesystem move, stage the moved file explicitly
 (`git add <archived-path>`) and bundle it into the memory commit below —
 no separate commit needed for an archive move.
 
-### Step 3: Pattern Promotion Check
+### Step 3: Pattern Promotion Check (doc-freshness pass)
 
-Ask: "Was a new cross-cutting pattern established this session that applies
-broadly — not just to the specific thing being worked on?"
+This step catches **under-documentation**: a decision that got made this
+session but never landed anywhere permanent — the discipline that failed
+once in the reference implementation (comp-in-a-box) and had to be
+rebuilt. It's a `frontier-interview`-shaped pass over the session's own
+notable changes/decisions, not a single yes/no gate:
 
-- If YES and it was explicitly discussed/agreed with the user: append it to
-  `config.json`'s `patternPromotionTarget` doc (and `ownershipDoc`'s table,
-  if one exists and the pattern introduces a new concern).
-- If uncertain: note it as a candidate in the session summary only — do not
-  write it anywhere yet.
-- If NO: skip silently.
-
-This is the step that keeps memory from becoming a dumping ground for
-things that actually belong in a permanent doc — the discipline that failed
-once in the reference implementation (comp-in-a-box) and had to be rebuilt.
+1. **Build the tree from this session, not from scratch.** Scan what
+   actually happened this session (the diff, the conversation, any
+   decisions discussed) for candidates: new cross-cutting patterns, naming
+   or terminology calls, design tradeoffs, anything that applies broadly
+   rather than just to the specific thing being worked on. Each candidate
+   is one node. Most sessions produce zero or one candidate — this is
+   deliberately cheap for a small session, not a mandatory long interview.
+2. **Skip entirely if there are no candidates.** Don't manufacture a
+   question when nothing cross-cutting happened — say so in the summary
+   ("None") and move to Step 4.
+3. **Otherwise, run `../frontier-interview/SKILL.md` Steps 2–5**, scoped to
+   just these candidates: for each, the frontier question is "does this
+   belong in a permanent doc, and if so, which one?" with your recommended
+   answer as the default option (usually: yes → `patternPromotionTarget`,
+   or the matching `domain-vocabulary`/`design-soul` doc if the candidate
+   is a terminology or design decision specifically — check `canonicalDocs`
+   for a `kind: "vocabulary"`/`kind: "design"` entry before defaulting to
+   `patternPromotionTarget`).
+4. **Route confirmed answers immediately**, inline, the same way
+   `interview-with-docs` does — never batch multiple candidates' writes
+   into one deferred pass:
+   - Cross-cutting pattern, no vocabulary/design angle → append to
+     `patternPromotionTarget` (and `ownershipDoc`'s table, if one exists
+     and the pattern introduces a new concern).
+   - Terminology/naming decision → `../domain-vocabulary/SKILL.md`'s
+     "Record a decision" capability, if that discipline is configured.
+   - Design/visual tradeoff → `../design-soul/SKILL.md`'s "Record a
+     decision" capability, if that discipline is configured.
+   - Explicitly uncertain (the user isn't sure it's actually cross-cutting
+     yet) → note it as a candidate in the session summary only, write
+     nothing.
 
 ### Step 4: Quality Gate
 
@@ -238,10 +262,12 @@ separate plan files forward.
 
 ### Sprint Step 4: Pattern Promotion (holistic)
 
-Ask the holistic version of Step 3's question: "Across the entire sprint,
-was a cross-cutting pattern established?" This catches patterns that only
-become visible across multiple sessions, which a single per-session check
-might miss.
+Same doc-freshness pass as standard Step 3, but the candidate-gathering in
+its point 1 scans the **entire sprint's** diff/decisions, not just one
+session — this catches patterns that only become visible across multiple
+sessions, which a single per-session pass might miss. Everything else
+(the `frontier-interview`-shaped resolution, inline routing per candidate)
+is identical.
 
 ### Sprint Step 5: Quality Gate
 
