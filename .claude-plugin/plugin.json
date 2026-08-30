@@ -17,16 +17,16 @@
     "productivity"
   ],
   "skills": [
-    "./bootstrap",
-    "./session-start",
-    "./wrap-up",
-    "./doctor",
-    "./help",
-    "./domain-vocabulary",
-    "./design-soul",
-    "./frontier-interview",
-    "./interview-me",
-    "./interview-with-docs",
-    "./semantic-registry"
+    "./skills/bootstrap",
+    "./skills/session-start",
+    "./skills/wrap-up",
+    "./skills/doctor",
+    "./skills/help",
+    "./skills/domain-vocabulary",
+    "./skills/design-soul",
+    "./skills/frontier-interview",
+    "./skills/interview-me",
+    "./skills/interview-with-docs",
+    "./skills/semantic-registry"
   ]
 }
