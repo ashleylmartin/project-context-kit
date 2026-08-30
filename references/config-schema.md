@@ -1,7 +1,8 @@
 # Config Schema — `.snowflake/cortex/memory/config.json`
 
-This file is the single generalization seam. Every other skill in this package
-(`session-start`, `wrap-up`, `help`) reads it instead of hardcoding paths,
+This file is the single generalization seam. Every other skill in this
+plugin (`session-start`, `wrap-up`, `doctor`, `help`, `domain-vocabulary`,
+`design-soul`, `semantic-registry`) reads it instead of hardcoding paths,
 commands, or project names. `bootstrap` is the only skill that writes it
 (aside from `wrap-up`, which may update `planSources` or `canonicalDocs` if
 the user adds one mid-project — always via explicit user confirmation, never

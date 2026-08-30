@@ -24,7 +24,7 @@ If `config.json` doesn't exist, explain the system generically and point at
 ```
 This project hasn't set up the project-memory system yet.
 
-Three commands, once bootstrapped:
+Three core commands, once bootstrapped:
 - bootstrap  — one-time setup: creates a budgeted memory file, a config
   file, and (optionally) a lightweight ownership doc.
 - session-start — run at the start of every session: syncs git, warms the
@@ -32,6 +32,12 @@ Three commands, once bootstrapped:
 - wrap-up — run at the end of every session: updates memory (within a hard
   size budget), checks for patterns worth promoting into a permanent doc,
   runs your quality gate, commits (never pushes without asking).
+
+Plus optional discipline skills bootstrap can also set up: doctor (audit
+an existing setup for drift), domain-vocabulary and design-soul (active,
+inline glossary/design docs — not just batch-written at wrap-up), and
+semantic-registry (opt-in grep-based drift checker, runs as part of
+wrap-up's quality gate once configured).
 
 Memory model: a single git-tracked file is the source of truth. It's
 synced to a local runtime cache on this machine, and to any other machine
@@ -62,6 +68,14 @@ This project's memory system:
 - Quality gate run at wrap-up: <qualityGate commands, or "none configured
   yet">
 - Pattern promotions land in: <patternPromotionTarget>
+- Domain-vocabulary discipline: <"active — <path>" if a canonicalDocs
+  entry has kind: "vocabulary", else "not enabled — run domain-vocabulary
+  to opt in">
+- Design-soul discipline: <"active — <path>" if a canonicalDocs entry has
+  kind: "design", else "not enabled — run design-soul to opt in">
+- Semantic-registry drift checking: <"enabled — <semanticRegistry path>"
+  if set, else "not enabled" (and if either discipline above IS active,
+  mention it can now be opted into via semantic-registry)>
 
 Typical session:
 1. Run session-start — syncs git, warms memory, shows what's active.

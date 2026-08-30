@@ -24,16 +24,19 @@ cat .snowflake/cortex/memory/config.json 2>/dev/null
 
 ## Step 1: Check for dangling paths
 
-For each `canonicalDocs[].path` and `ownershipDoc` (if set), verify the file
-exists:
+For each `canonicalDocs[].path`, `ownershipDoc` (if set), and
+`semanticRegistry` (if set), verify the file exists:
 
 ```bash
 test -f "<path>" && echo "OK: <path>" || echo "MISSING: <path>"
 ```
 
 A missing canonical doc means memory has nowhere to defer to for that
-concern — flag it. Ask the user whether to remove the stale entry or
-recreate the file; don't guess which.
+concern — flag it. A missing `semanticRegistry` file means the opt-in
+checker command in `qualityGate` will fail every `wrap-up` until it's
+recreated or the entry is removed — flag it the same way. Ask the user
+whether to remove the stale entry (and its `qualityGate` command, for
+`semanticRegistry`) or recreate the file; don't guess which.
 
 ## Step 2: Check for plan-source drift
 
@@ -138,7 +141,7 @@ continuity currently looks like:
 
 ### Canonical docs
 - [OK|MISSING] <path> — <owns>
-  (repeat per entry, plus ownershipDoc if set)
+  (repeat per entry, plus ownershipDoc if set, plus semanticRegistry path if set)
 
 ### Plan sources
 - <"configured: <globs>" | "empty, no drift detected" | "empty, but found N file(s) in <dir> — suggest enabling">
@@ -163,7 +166,7 @@ confirm or apply.
 
 ## Stopping Points
 
-- ✋ Step 1: confirm before removing/editing a `canonicalDocs` entry
+- ✋ Step 1: confirm before removing/editing a `canonicalDocs` entry, `ownershipDoc`, or `semanticRegistry` path
 - ✋ Step 2: confirm before writing `planSources` to `config.json`
 
 ## Output

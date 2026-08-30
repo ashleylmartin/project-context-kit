@@ -19,6 +19,10 @@ machine with only this plugin installed.
 | `help` | command + natural language | Config-aware guide — generic if unconfigured, concrete once set up. |
 | `domain-vocabulary` | command + natural language | Active glossary/ADR-lite discipline for domain terms. |
 | `design-soul` | command + natural language | Active discipline for design tokens, component conventions, interaction rules. |
+| `frontier-interview` | model-composed only | Shared interview primitive (decision tree + rounds). Composes with the skills below; not typically invoked by name. |
+| `interview-me` | command + natural language | Runs `frontier-interview` on a plan/design/idea, reports the resolved decisions back. |
+| `interview-with-docs` | command + natural language | Same as `interview-me`, but routes each resolved decision into `domain-vocabulary`/`design-soul` inline. |
+| `semantic-registry` | command + natural language (checker itself runs via `wrap-up`'s quality gate) | Opt-in, grep-based drift checker: banned synonyms, missing documented code references, multi-file value agreement. |
 
 ## Installing / reinstalling / updating
 

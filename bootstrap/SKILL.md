@@ -337,7 +337,7 @@ Write `config.json`'s `memoryReadme` path:
    the canonical docs list in `config.json`.
 3. Memory owns: session state, active work, non-obvious in-flight gotchas.
 4. History lives in git log. Do not maintain a changelog file here.
-5. Run `/wrap-up` (from the `project-memory` skill package) at session end
+5. Run `/wrap-up` (from the `project-context-kit` plugin) at session end
    to keep this file current and committed.
 
 ## Cross-Machine Sync
@@ -363,7 +363,8 @@ Fill in the bracketed placeholders from the actual `config.json` values.
 
 ```bash
 git add .snowflake/cortex/memory/config.json .snowflake/cortex/memory/<memoryFile-basename> .snowflake/cortex/memory/README.md
-# plus any scaffolded canonical/ownership docs from Step 6
+# plus any scaffolded canonical/ownership/vocabulary/design docs from Step 6,
+# and .snowflake/cortex/memory/semantic-registry.json (or wherever configured) if Step 6 seeded one
 ```
 
 Do not commit yet — surface the new files to the user and let them commit
@@ -374,7 +375,12 @@ Do not commit yet — surface the new files to the user and let them commit
 Summarize what was created (file list), confirm the config values chosen,
 and tell the user: "Run `session-start` at the beginning of future sessions,
 and `wrap-up` at the end. Ask `help` any time for a walkthrough of how this
-project's memory system works."
+project's memory system works." If domain-vocabulary and/or design-soul
+were opted into, mention those by name too (they're used directly, not
+just through `wrap-up`) — e.g. "Use `domain-vocabulary`/`design-soul`
+any time you're defining a term, token, or design decision." If
+semantic-registry was opted into, mention it runs automatically as part
+of `wrap-up`'s quality gate — no separate command to remember.
 
 ## Stopping Points
 
@@ -386,5 +392,7 @@ project's memory system works."
 ## Output
 
 `.snowflake/cortex/memory/config.json`, a seeded memory file, a memory
-README, and (if requested) a minimal conventions doc and ownership-map doc —
-all git-tracked but uncommitted, ready for the user's first `wrap-up`.
+README, and (if requested) any combination of: a minimal conventions doc,
+an ownership-map doc, a domain-vocabulary doc, a design-soul doc, and an
+empty semantic-registry JSON — all git-tracked but uncommitted, ready for
+the user's first `wrap-up`.

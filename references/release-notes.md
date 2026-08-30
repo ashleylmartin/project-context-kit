@@ -12,7 +12,7 @@ Adapted from [tilomitra/release-kit-claude-skills](https://github.com/tilomitra/
 `release-notes` skill (MIT License) — same signal-gathering hierarchy and
 writing rules, retargeted from a one-shot markdown doc to an append-and-prune
 HTML page, with a fallback path for projects that have no GitHub remote or PR
-workflow (common for `project-memory` projects — e.g. `therm-incentive` has
+workflow (common for projects using this plugin — e.g. `therm-incentive` has
 no remote configured at all).
 
 ## Before writing any HTML
@@ -54,22 +54,23 @@ run's write, so every subsequent run uses it.
   sensible bound: the project's first commit for a small/new repo, or the
   last N commits if the repo is large and old.
 - Prefer git tags when the project actually uses them (`git describe --tags
-  --abbrev=0`), but don't require them — most `project-memory` projects
+  --abbrev=0`), but don't require them — most projects using this plugin
   commit straight to `main` with no tagging discipline, and tags are a
   nice-to-have signal, not a prerequisite.
 
 ## Step 2: Gather signals (in order of usefulness)
 
-**If this project has a configured issue tracker with PRs** (check
-`docs/agents/issue-tracker.md` if the project ran `setup-matt-pocock-skills`,
-or ask) — prefer these first, they carry the most intent:
+**If this project has a configured issue tracker with PRs** (check for a
+project-specific issue-tracker config doc — e.g. `docs/agents/issue-tracker.md`
+or similar, if some other tooling in this project maintains one — or just
+ask) — prefer these first, they carry the most intent:
 
 ```bash
 gh pr list --state merged --search "merged:>=$SINCE_DATE" --json number,title,body,labels --limit 100
 gh issue list --state closed --search "closed:>=$SINCE_DATE" --json number,title,body,labels --limit 100
 ```
 
-**Otherwise — the common case for a `project-memory` project with no remote
+**Otherwise — the common case for a project using this plugin with no remote
 or no PR workflow — fall back directly to git**, in this order:
 
 ```bash
