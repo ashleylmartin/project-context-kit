@@ -19,7 +19,8 @@ silently).
   "ownershipDoc": "docs/KNOWLEDGE_MAP.md",
   "canonicalDocs": [
     { "path": "AGENTS.md", "owns": "commands, structure, conventions, gotchas" },
-    { "path": "CONTEXT.md", "owns": "domain vocabulary, glossary, ADR-lite decisions", "kind": "vocabulary" }
+    { "path": "CONTEXT.md", "owns": "domain vocabulary, glossary, ADR-lite decisions", "kind": "vocabulary" },
+    { "path": "DESIGN.md", "owns": "design tokens, component conventions, interaction rules", "kind": "design" }
   ],
   "planSources": [".snowflake/cortex/plans/*.plan.md"],
   "qualityGate": ["npm run lint", "npm test"],
