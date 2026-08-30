@@ -109,7 +109,29 @@ diff "<config.json memoryFile>" "$LOCAL_MEM" 2>/dev/null
   should have written to canonical directly instead; call this out to the
   user rather than silently absorbing it.
 
-## Step 5: Report
+## Step 5: Cross-machine remote status (informational only)
+
+```bash
+git remote -v
+```
+
+This system's design is git-topology-agnostic — local-only, remote-backed,
+or local-now-remote-later all work with zero reconfiguration — so this
+check never blocks or fixes anything, it just reports what cross-machine
+continuity currently looks like:
+
+- **No remote configured** — memory only survives on this machine right
+  now. Report this plainly, don't frame it as a problem: plenty of
+  legitimate scratch/local-only projects never need a remote. If the user
+  wants cross-machine continuity later, adding a remote (`git remote add
+  origin <url>` + `git push -u origin <branch>`) is all that's needed —
+  nothing about `config.json` or the memory file itself changes.
+- **Remote configured** — report the remote URL and whether `session-start`
+  found it in sync last run (that's already covered by Step 1 of
+  `session-start`, not re-checked here). This is the normal case for a
+  project that expects to be worked on from more than one machine.
+
+## Step 6: Report
 
 ```
 ## Memory Doctor — <projectName>
@@ -126,13 +148,18 @@ diff "<config.json memoryFile>" "$LOCAL_MEM" 2>/dev/null
 
 ### Local cache coherency
 - <"in sync" | "diverged — resynced from canonical" | "missing — seeded from canonical">
+
+### Cross-machine remote status
+- <"no remote configured — memory is local-only on this machine" | "remote: <url>">
 ```
 
 Then apply only the fixes the user explicitly confirms (dangling-path
 removal, `planSources` update). The cache resync (Step 4) and budget report
 (Step 3) don't need per-fix confirmation — resyncing the cache from
 canonical is always safe (canonical wins, by definition), and the budget
-check is read-only until `wrap-up` runs.
+check is read-only until `wrap-up` runs. Step 5's remote status is
+purely informational and never triggers a fix — there is nothing to
+confirm or apply.
 
 ## Stopping Points
 

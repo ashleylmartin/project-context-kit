@@ -26,17 +26,34 @@ overwrite an already-curated memory file. Instead:
 
 ## Step 1: Confirm git
 
-This system's cross-machine sync depends entirely on git push/pull. Run:
+This system's cross-machine sync depends entirely on git push/pull, but
+that's a **soft** requirement — a **hard** requirement is just having a git
+repo at all (any local commit history, even with no remote). Check the
+hard requirement first:
 
 ```bash
 git rev-parse --is-inside-work-tree
 ```
 
-If this fails, stop and tell the user: the project-memory system requires a
-git repository (any cross-machine sync happens via `git push`/`git pull` on
-the memory file — without git there is nothing to sync). Ask them to
-`git init` first, or skip bootstrap if this is intentionally a single-machine
-scratch project that doesn't need memory continuity.
+If this fails, stop and tell the user: the project-memory system requires
+a git repository — without one there's no commit history for the memory
+file to live in at all, on any machine. Ask them to `git init` first, or
+skip bootstrap if this is intentionally a throwaway scratch directory.
+
+Then check the soft requirement, informationally only — never block on it:
+
+```bash
+git remote -v
+```
+
+- **No remote** — this project's memory will be local-only for now. That's
+  a completely valid setup (many single-machine or early-stage projects
+  never need more) — say so plainly, don't frame it as incomplete. Mention
+  that adding a remote later (`git remote add origin <url>` + `git push -u
+  origin <branch>`) is all it takes to add cross-machine sync — nothing
+  about `config.json` or the memory file changes when that happens.
+- **Remote already configured** — proceed normally; this is the standard
+  multi-machine case `session-start`/`wrap-up` are built around.
 
 ## Step 1b: Greenfield check
 

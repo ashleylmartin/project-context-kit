@@ -99,6 +99,17 @@ don't just dump the full report if the user asked something narrower like
   `canonicalDocs` in `config.json` (and to `ownershipDoc`'s table if one
   exists) with what it owns. `wrap-up`'s pattern-promotion step will start
   deferring to it.
+- **"What if my project has no remote (or is local-only)?"** — Fully
+  supported, zero reconfiguration needed. This system is git-topology-
+  agnostic: `bootstrap` only requires a git repo to exist (a hard
+  requirement — commit history is where the memory file lives), never a
+  remote (a soft one). With no remote, memory just survives on this one
+  machine — `session-start`'s git-sync step already skips the
+  fetch/pull when there's no `origin` to sync with. If a remote gets
+  added later (`git remote add origin <url>` + `git push -u origin
+  <branch>`), cross-machine sync starts working immediately — nothing
+  about `config.json`, the memory file, or any other setup changes.
+  Run `doctor` any time to see this project's current remote status.
 
 ## Output
 
