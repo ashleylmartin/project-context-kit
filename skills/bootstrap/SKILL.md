@@ -381,7 +381,12 @@ were opted into, mention those by name too (they're used directly, not
 just through `wrap-up`) — e.g. "Use `domain-vocabulary`/`design-soul`
 any time you're defining a term, token, or design decision." If
 semantic-registry was opted into, mention it runs automatically as part
-of `wrap-up`'s quality gate — no separate command to remember.
+of `wrap-up`'s quality gate — no separate command to remember. Also
+mention `../references/session-start-hook.md` is available: an optional,
+opt-in `SessionStart` hook that automates the git-pull/cache-sync
+mechanics before a session even starts — not installed automatically
+(hooks are a user/workspace setting this plugin shouldn't write into on
+its own), just pointed at for anyone who wants it.
 
 ## Stopping Points
 

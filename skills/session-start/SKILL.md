@@ -21,6 +21,26 @@ is no memory file or budget to sync without it.
 
 ## Step 1: Git Sync
 
+Before syncing, check for another live session in this same working
+directory (advisory only — never blocks):
+
+```bash
+LOCK="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').lock"
+if [ -f "$LOCK" ]; then
+  PID=$(grep '^pid=' "$LOCK" | cut -d= -f2)
+  HOST=$(grep '^host=' "$LOCK" | cut -d= -f2)
+  if [ "$HOST" = "$(hostname)" ] && kill -0 "$PID" 2>/dev/null; then
+    echo "NOTICE: another project-context-kit session appears active in this directory ($(cat "$LOCK"))."
+  else
+    rm -f "$LOCK"   # stale — different host, or PID no longer running
+  fi
+fi
+```
+
+If the notice fires, mention it to the user in the Step 5 report ("another
+session may be active — proceed with caution") but continue normally; this
+is informational, not a gate.
+
 Run as two separate calls (so status/log always run even if pull fails):
 
 ```bash
@@ -134,6 +154,7 @@ Output a brief session preamble covering:
 - Memory state (line count, COLD START flag if applicable)
 - Active plans (if any) or "no plan sources configured"
 - Plan-source drift warning (if Step 4b found any)
+- Concurrent-session notice (if Step 1's lock check found one)
 - Working tree status (clean / dirty files)
 
 ## Stopping Points

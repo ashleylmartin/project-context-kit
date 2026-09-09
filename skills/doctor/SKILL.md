@@ -130,6 +130,33 @@ If it exists, report its contents to the user and note it's safe to delete
 without confirmation, since any file that survived past sweeps may still
 hold content the user wants to keep.
 
+### Stale concurrency lock check
+
+`session-start`/`wrap-up` write an advisory lock at
+`$HOME/.snowflake/cortex/project-context-kit/cache/<sanitized-cwd>.lock`
+while a git-sync step is in progress, and remove it on exit. A lock that
+survives — usually from a session that crashed or was force-killed mid-sync
+— is stale and gives every future `session-start` a false "another session
+is active" notice:
+
+```bash
+LOCK="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').lock"
+if [ -f "$LOCK" ]; then
+  PID=$(grep '^pid=' "$LOCK" | cut -d= -f2)
+  HOST=$(grep '^host=' "$LOCK" | cut -d= -f2)
+  if [ "$HOST" = "$(hostname)" ] && kill -0 "$PID" 2>/dev/null; then
+    echo "Lock looks live: PID $PID is still running on this host."
+  else
+    echo "Lock is stale ($(cat "$LOCK")) — safe to remove: rm \"$LOCK\""
+  fi
+fi
+```
+
+Report a stale lock, offer to remove it — don't delete it silently, since a
+"live" verdict could be wrong for a session on a different host sharing the
+same synced repo path (rare, but the check is host-scoped for exactly this
+reason).
+
 ## Step 5: Cross-machine remote status (informational only)
 
 ```bash
