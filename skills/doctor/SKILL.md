@@ -79,30 +79,28 @@ either, flag it — don't fix it here; that's `wrap-up`'s synthesis job (see
 
 ## Step 4: Check local runtime cache coherency
 
-**This is the check that would have caught today's drift.** The built-in
-Cortex Code memory tool and this skill's "local runtime cache" write to the
-*same physical file* — `$HOME/.snowflake/cortex/memory/projects/<sanitized-cwd>/MEMORY.md`
-(sanitized: leading `/` stripped, remaining `/` replaced with `-`). That
-file is supposed to be an exact mirror of the git-tracked canonical
-`memoryFile`, refreshed by `session-start` Step 2 every session — but
-nothing stops an agent from hand-authoring it directly (via the generic
-memory-tool protocol) in a session where `session-start` was never
-invoked. When that happens, the two silently diverge.
+This skill's "local runtime cache" is a single flat file at a path
+exclusive to `project-context-kit` —
+`$HOME/.snowflake/cortex/project-context-kit/cache/<sanitized-cwd>.md`
+(sanitized: leading `/` stripped, remaining `/` replaced with `-`). It is
+supposed to be an exact mirror of the git-tracked canonical `memoryFile`,
+refreshed by `session-start` Step 2 every session — but nothing stops an
+agent from hand-editing it directly in a session where `session-start` was
+never invoked. When that happens, the two silently diverge.
 
 ```bash
-LOCAL_MEM="$HOME/.snowflake/cortex/memory/projects/$(echo "$PWD" | sed 's|^/||;s|/|-|g')/MEMORY.md"
+LOCAL_MEM="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').md"
 diff "<config.json memoryFile>" "$LOCAL_MEM" 2>/dev/null
 ```
 
 - No output → coherent, nothing to do.
 - Any diff, or `$LOCAL_MEM` missing entirely → report it. Fix by reusing
-  `session-start` Step 2's own logic verbatim (copy canonical → cache,
-  sweep orphaned topic files) — don't reimplement it differently here:
+  `session-start` Step 2's own logic verbatim (copy canonical → cache) —
+  don't reimplement it differently here:
 
   ```bash
   mkdir -p "$(dirname "$LOCAL_MEM")"
   cp "<config.json memoryFile>" "$LOCAL_MEM"
-  find "$(dirname "$LOCAL_MEM")" -maxdepth 1 -type f ! -name "MEMORY.md" -delete
   ```
 
   The canonical git-tracked file always wins this resync — never write the
@@ -111,6 +109,26 @@ diff "<config.json memoryFile>" "$LOCAL_MEM" 2>/dev/null
   memory, that's a sign the agent that wrote it skipped `session-start` and
   should have written to canonical directly instead; call this out to the
   user rather than silently absorbing it.
+
+### Migration check (projects bootstrapped before this fix)
+
+Before this fix, the local runtime cache lived at
+`$HOME/.snowflake/cortex/memory/projects/<sanitized-cwd>/MEMORY.md` — the
+same directory the built-in Cortex Code memory tool uses for this project's
+own per-project topic files. `session-start`/`wrap-up` used to sweep that
+directory with `find ... -delete`, which could silently destroy those
+topic files. `project-context-kit` no longer reads or writes that old path
+at all. Check whether it still exists:
+
+```bash
+OLD_DIR="$HOME/.snowflake/cortex/memory/projects/$(echo "$PWD" | sed 's|^/||;s|/|-|g')"
+ls -la "$OLD_DIR" 2>/dev/null
+```
+
+If it exists, report its contents to the user and note it's safe to delete
+(nothing in this plugin reads it anymore) — but never delete it yourself
+without confirmation, since any file that survived past sweeps may still
+hold content the user wants to keep.
 
 ## Step 5: Cross-machine remote status (informational only)
 

@@ -52,10 +52,12 @@ committed and pushed at every session end, readable on any machine after
 6. **Sync the local runtime cache** (keeps it fresh without waiting for the
    next `session-start`):
    ```bash
-   LOCAL_MEM="$HOME/.snowflake/cortex/memory/projects/$(echo "$PWD" | sed 's|^/||;s|/|-|g')/MEMORY.md"
+   LOCAL_MEM="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').md"
+   mkdir -p "$(dirname "$LOCAL_MEM")"
    cp "<config.json memoryFile>" "$LOCAL_MEM"
-   find "$(dirname "$LOCAL_MEM")" -maxdepth 1 -type f ! -name "MEMORY.md" -delete
    ```
+   This path is exclusive to `project-context-kit` — a single flat file, not
+   a directory shared with anything else — so there's nothing to sweep.
 
 ### Step 2: Plan Hygiene
 

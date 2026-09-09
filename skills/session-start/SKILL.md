@@ -56,7 +56,7 @@ on another machine:
 
 ```bash
 MEMORY_FILE="<config.json memoryFile>"
-LOCAL_MEM="$HOME/.snowflake/cortex/memory/projects/$(echo "$PWD" | sed 's|^/||;s|/|-|g')/MEMORY.md"
+LOCAL_MEM="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').md"
 mkdir -p "$(dirname "$LOCAL_MEM")"
 if [ ! -s "$LOCAL_MEM" ]; then
   cp "$MEMORY_FILE" "$LOCAL_MEM" 2>/dev/null || true
@@ -65,10 +65,11 @@ else
   cp "$MEMORY_FILE" "$LOCAL_MEM" 2>/dev/null || true
   echo "Memory synced: $(wc -l < "$LOCAL_MEM") lines"
 fi
-# Sweep orphaned topic files — this system uses a single flat file per
-# project, never an index+topic-file structure; anything else here is stale.
-find "$(dirname "$LOCAL_MEM")" -maxdepth 1 -type f ! -name "MEMORY.md" -delete
 ```
+
+This cache lives at a path exclusively owned by `project-context-kit` — one
+flat file, not a directory shared with anything else — so there is nothing
+else nearby to ever sweep or delete.
 
 On **COLD START** (new machine or first session after clone): the local
 cache was empty — now seeded from the git-tracked file.

@@ -348,13 +348,14 @@ On a fresh machine, `session-start` reads it to bootstrap local context.
 ## A note on the local runtime cache
 
 `session-start` mirrors this file into a per-machine cache at
-`$HOME/.snowflake/cortex/memory/projects/<sanitized-repo-path>/MEMORY.md` —
-and that path is also where the built-in Cortex Code memory tool keeps its
-own per-project notes. **Don't hand-author that cache path directly.** It
-gets silently overwritten by the next `session-start`, and anything written
-there instead of here will eventually be lost or conflict with this file.
-Always write project state to *this* file (`<memoryFile>`); run `doctor` if
-you suspect the two have already diverged.
+`$HOME/.snowflake/cortex/project-context-kit/cache/<sanitized-repo-path>.md`
+— a path exclusive to `project-context-kit`, separate from anything the
+built-in Cortex Code memory tool manages. **Don't hand-author that cache
+path directly.** It gets silently overwritten by the next `session-start`,
+and anything written there instead of here will eventually be lost or
+conflict with this file. Always write project state to *this* file
+(`<memoryFile>`); run `doctor` if you suspect the two have already
+diverged.
 ```
 
 Fill in the bracketed placeholders from the actual `config.json` values.
