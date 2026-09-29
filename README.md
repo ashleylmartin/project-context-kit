@@ -57,10 +57,36 @@ Standard [Changesets](https://github.com/changesets/changesets) flow:
    and then `scripts/sync-plugin-version.mjs` — the latter copies
    `package.json`'s new version into **both** `.cortex-plugin/plugin.json`
    and `.claude-plugin/plugin.json`, so all three manifests always agree.
-4. `npx changeset tag` (also run by the release job) creates the git tag.
+4. `npx changeset tag` (also run by the release job) creates the git tag
+   **and** a GitHub Release from the changelog entry — the Action does
+   both together whenever it's the one that just created the tag.
 
 No marketplace step — this is a private, personal-install-only plugin, not
 published to a shared marketplace.
 
 Run `npm run check-plugin-version` any time to verify all three manifests
 are still in lockstep without changing anything.
+
+### Skipping the PR (direct-push shortcut)
+
+Steps 3–4 can be run locally on `main` instead of waiting for the PR merge
+(`npm run version`, commit, push, then `npx changeset tag` and push
+`--follow-tags`) when you want the bump to land immediately. Doing this
+has two consequences the PR-merge path doesn't:
+
+- The already-opened "Version Packages" PR becomes stale the moment your
+  push lands (it would just re-apply what's already on `main`) — close it
+  (`gh pr close <number>`) rather than leaving it open.
+- The Release Action still runs on your push, but its `npx changeset tag`
+  step finds the tag already exists and no-ops — it only creates a GitHub
+  Release when *it's* the one that just created the tag. Create the
+  Release manually to match every prior version:
+  `gh release create v<version> --title v<version> --notes-file <(awk '/^## <version>/{f=1;next}/^## /{f=0}f' CHANGELOG.md) --latest`.
+
+Needs a `GITHUB_TOKEN` in the environment either way — `changeset version`'s
+changelog generator (`@changesets/changelog-github`) looks up commit/author
+info from the GitHub API, and fails without one even for a local run
+(`GITHUB_TOKEN="$(gh auth token)" npm run version` works if `gh` is already
+authenticated). It also needs the commit that added the changeset file to
+already be pushed — the lookup fails on a commit GitHub doesn't know about
+yet, so push that commit before running `npm run version` locally.
