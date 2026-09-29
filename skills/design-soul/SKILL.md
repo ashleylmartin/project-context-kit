@@ -81,14 +81,21 @@ either way.
 When two components disagree on spacing, a "rule" is really just a vibe
 nobody pinned down, or a genuine tradeoff needs resolving (e.g. "should
 this token be semantic or literal?") — load `../frontier-interview/SKILL.md`
-and run it scoped to that question. Once resolved, write the result as a
-token/convention/rule row plus an ADR-lite entry if it involved a real
-tradeoff.
+and run it scoped to that question. Stress-test with a concrete scenario
+where useful ("if this card sits inside a dense table row, does the
+standard padding token still apply, or does that context need its own?") —
+a rule that survives a concrete case is precise; one that doesn't yet have
+an answer is the fuzziness this capability exists to resolve. Once
+resolved, write the result as a token/convention/rule row, plus an
+ADR-lite entry below if the 3-part test passes.
 
 ### Record a decision (ADR-lite)
 
-Append under `## Decisions`, most recent last — identical format to
-`domain-vocabulary`'s:
+Same 3-part test `domain-vocabulary` uses for when an ADR is warranted
+(hard to reverse; surprising without context; result of a real
+trade-off — all three required). If any is missing, it's just a
+token/convention row above, not an ADR. When all three hold, append under
+`## Decisions`, most recent last — identical format to `domain-vocabulary`'s:
 
 ```markdown
 ### <short title> — <date>

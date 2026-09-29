@@ -2,8 +2,9 @@
 
 Portable, config-driven project context system for [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code):
 a budgeted cross-session memory file, active docs discipline (domain
-vocabulary, design soul), a doc-freshness interview, a grep-based semantic
-drift checker, and cross-machine continuity via git.
+vocabulary, design soul, codebase-design), a doc-freshness interview, a
+grep-based semantic drift checker, an authoring standard for writing your
+own agent-facing docs, and cross-machine continuity via git.
 
 No external runtime dependencies — every capability works standalone on a
 machine with only this plugin installed.
@@ -12,13 +13,15 @@ machine with only this plugin installed.
 
 | Skill | Invocation | Purpose |
 |---|---|---|
-| `bootstrap` | command-only | One-time setup: creates `config.json`, the memory file, and (optionally) canonical/ownership/vocabulary/design docs. |
+| `bootstrap` | command-only | One-time setup: creates `config.json`, the memory file, and (optionally) canonical/ownership/vocabulary/design docs. Records the installed plugin version for `doctor` to check later. |
 | `session-start` | command + natural language | Run at the start of every session: git sync, cold-start memory bootstrap, active plans. |
 | `wrap-up` | command + natural language | Run at the end of every session: memory sync, plan hygiene, pattern promotion, quality gate, commit. |
-| `doctor` | command + natural language | Audit an already-bootstrapped project for drift. Fixes only with confirmation. |
-| `help` | command + natural language | Config-aware guide — generic if unconfigured, concrete once set up. |
-| `domain-vocabulary` | command + natural language | Active glossary/ADR-lite discipline for domain terms. |
-| `design-soul` | command + natural language | Active discipline for design tokens, component conventions, interaction rules. |
+| `doctor` | command + natural language | Audit an already-bootstrapped project for drift — including a stale `configVersion` against the installed plugin. Fixes only with confirmation. |
+| `help` | command + natural language | Config-aware guide — generic if unconfigured, concrete once set up — plus a map of how every skill in this kit fits together. |
+| `domain-vocabulary` | command + natural language | Active glossary/ADR-lite discipline for domain terms: definitions, fuzzy-term challenges, concrete-scenario stress-testing, code cross-referencing, and a 3-part test for when a decision is actually ADR-worthy. Supports multi-context repos via `CONTEXT-MAP.md`. |
+| `design-soul` | command + natural language | Active discipline for design tokens, component conventions, interaction rules — same ADR-lite/scenario-stress-testing shape as `domain-vocabulary`, for visual/interaction language instead of naming. |
+| `codebase-design` | command + natural language | Shared vocabulary for designing deep modules (module, interface, depth, seam, adapter) — no canonical doc of its own; routes hard trade-offs into `domain-vocabulary`'s decision log. |
+| `writing-for-agents` | command + natural language | The authoring standard this kit's own skills are held to — context pointers, progressive disclosure, completion-criteria rigor, leading words, anti-sediment pruning. Reach for it writing your own `AGENTS.md`/skills too. |
 | `frontier-interview` | model-composed only | Shared interview primitive (decision tree + rounds). Composes with the skills below; not typically invoked by name. |
 | `interview-me` | command + natural language | Runs `frontier-interview` on a plan/design/idea, reports the resolved decisions back. |
 | `interview-with-docs` | command + natural language | Same as `interview-me`, but routes each resolved decision into `domain-vocabulary`/`design-soul` inline. |

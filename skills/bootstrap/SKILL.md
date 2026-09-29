@@ -190,7 +190,11 @@ edits) before Step 5 writes anything to disk.
 
 Load `../references/config-schema.md` for the exact field list and
 validation rules, then write `.snowflake/cortex/memory/config.json` using the
-confirmed draft. Defaults if the user has no strong preference:
+confirmed draft. Set `configVersion` to this installed plugin's current
+version — read `version` from `~/.snowflake/cortex/plugins/project-context-kit/.cortex-plugin/plugin.json`
+(or wherever this plugin is actually installed, if not the standard
+per-user path). This is visibility for `doctor` later, not something to
+ask the user about. Defaults if the user has no strong preference:
 
 - `budgetLines: 80`, `budgetKB: 6` (comp-in-a-box's proven defaults — big
   enough for real session state, small enough to force pruning).

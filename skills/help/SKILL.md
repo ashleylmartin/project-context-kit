@@ -1,6 +1,6 @@
 ---
 name: help
-description: "Explain how the project-memory system works, either generically (if this project isn't set up yet) or concretely using this project's actual config.json and memory file. Triggers: how do I use project memory, project memory help, explain the memory system, what does wrap-up do, what does session-start do, is this project set up for memory tracking, memory system guide."
+description: "Explain how the project-memory system works, either generically (if this project isn't set up yet) or concretely using this project's actual config.json and memory file. Also maps how all skills in this kit relate to each other. Triggers: how do I use project memory, project memory help, explain the memory system, what does wrap-up do, what does session-start do, is this project set up for memory tracking, memory system guide, how do these skills fit together, what skills does this kit have, which skill should I use."
 ---
 
 # Project Memory — Help
@@ -89,6 +89,37 @@ Typical session:
 Then answer whichever sub-question prompted the help request (see below) —
 don't just dump the full report if the user asked something narrower like
 "what's the difference between lite and full wrap".
+
+## How the skills fit together
+
+Two kinds of skill in this kit:
+
+- **Lifecycle** (run in sequence, once each per session): `bootstrap`
+  (once per project) → `session-start` (every session start) → do the
+  work → `wrap-up` (every session end). `doctor` sits outside this
+  sequence — run it any time something feels off, not just at a fixed
+  point.
+- **Vocabulary disciplines** (inline, used any time during "do the work,"
+  never batched): `domain-vocabulary` for naming/terminology,
+  `design-soul` for visual/interaction rules and tokens, `codebase-design`
+  for module/interface/architecture vocabulary. The first two persist to a
+  canonical doc (`CONTEXT.md`/`DESIGN.md`); `codebase-design` doesn't — it
+  routes any hard trade-off it surfaces into `domain-vocabulary`'s
+  decision log instead of keeping its own.
+
+Underneath both:
+
+- `frontier-interview` is the shared interview primitive `interview-me`,
+  `interview-with-docs`, and `wrap-up`'s pattern-promotion step all run
+  internally — reach for it by name only if you want the interview with no
+  wrapper around it.
+- `semantic-registry` is the opt-in checker underneath the vocabulary
+  disciplines — it doesn't author anything itself, it greps for drift
+  between what `domain-vocabulary`/`design-soul` documented and what the
+  code/other docs actually say now.
+- `writing-for-agents` is the meta-reference for extending this kit itself,
+  or for writing your own `AGENTS.md`/skills elsewhere — reach for it when
+  the words on the page, not the project's domain, are the problem.
 
 ## Common sub-questions to answer inline
 

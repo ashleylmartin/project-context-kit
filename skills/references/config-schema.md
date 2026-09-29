@@ -13,6 +13,7 @@ silently).
 ```json
 {
   "projectName": "my-app",
+  "configVersion": "1.0.0",
   "memoryFile": ".snowflake/cortex/memory/my-app.md",
   "memoryReadme": ".snowflake/cortex/memory/README.md",
   "budgetLines": 80,
@@ -40,6 +41,7 @@ silently).
 | Field | Type | Meaning |
 |---|---|---|
 | `projectName` | string | Used in the memory file's H1 and in commit-message context. |
+| `configVersion` | string (semver) | The installed plugin's version at the time `bootstrap` last ran. Visibility only — `doctor` compares it against the currently-installed plugin version and reports a mismatch, pointing at `CHANGELOG.md`. Not a migration mechanism: nothing in this kit rewrites `config.json` automatically off this field. Missing entirely means the project was bootstrapped before this field existed (pre-1.0) — `doctor` offers to backfill it, with confirmation, same as any other fix. |
 | `memoryFile` | string (repo-relative path) | The single git-tracked memory file. One file, not a directory of topic files — that structure is what caused the original bloat this system fixes. |
 | `memoryReadme` | string | Conventions doc for the memory file itself — the Key Principle, budget rule, cross-machine sync note. |
 | `budgetLines` | number | Soft cap on line count. Advisory on its own — see `budgetKB`. |

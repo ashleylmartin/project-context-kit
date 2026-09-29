@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: "Audit an already-bootstrapped project-memory setup for drift: dangling canonicalDocs/ownershipDoc paths, stale planSources, an over-budget memory file, or a local runtime cache that's diverged from the git-tracked canonical file. Reports findings and fixes only with confirmation -- never silently. Triggers: doctor, memory doctor, audit memory, check memory setup, is memory drifted, fix memory drift, validate memory config."
+description: "Audit an already-bootstrapped project-memory setup for drift: a stale configVersion against the installed plugin, dangling canonicalDocs/ownershipDoc paths, stale planSources, an over-budget memory file, or a local runtime cache that's diverged from the git-tracked canonical file. Reports findings and fixes only with confirmation -- never silently. Triggers: doctor, memory doctor, audit memory, check memory setup, is memory drifted, fix memory drift, validate memory config, is this project's config out of date, what version was this bootstrapped with."
 ---
 
 # Project Memory — Doctor
@@ -22,7 +22,25 @@ nothing to audit without a config.
 cat .snowflake/cortex/memory/config.json 2>/dev/null
 ```
 
-## Step 1: Check for dangling paths
+## Step 1: Check plugin-version staleness
+
+Read this installed plugin's current version from
+`~/.snowflake/cortex/plugins/project-context-kit/.cortex-plugin/plugin.json`
+(or the actual install path, if different on this machine) and compare it
+against `config.json`'s `configVersion`:
+
+- **Missing entirely** (pre-1.0 project) — offer to backfill it to the
+  current installed version, with confirmation, same as any other fix
+  below.
+- **Matches** — nothing to report.
+- **Behind** — report it plainly: *"this project's config was bootstrapped
+  with v`<configVersion>`; the plugin is now v`<installed version>` — check
+  `CHANGELOG.md` in the plugin's install directory for anything worth
+  opting into."* This is visibility only — doctor does not rewrite
+  anything else based on this finding, and updating `configVersion` itself
+  only happens with confirmation, identical to the backfill case above.
+
+## Step 2: Check for dangling paths
 
 For each `canonicalDocs[].path`, `ownershipDoc` (if set), and
 `semanticRegistry` (if set), verify the file exists:
@@ -38,16 +56,17 @@ recreated or the entry is removed — flag it the same way. Ask the user
 whether to remove the stale entry (and its `qualityGate` command, for
 `semanticRegistry`) or recreate the file; don't guess which.
 
-## Step 2: Check for plan-source drift
+## Step 3: Check for plan-source drift
 
 If `planSources` is **not** empty, skip this check — already configured.
 
 If it **is** empty, this may be intentional (the project genuinely doesn't
 track plans as files) or it may be stale (plan-tracking started after
 bootstrap and nothing ever revisited the config — this is exactly what
-happened on `therm-incentive`). Check common conventions, using `find`
-rather than shell glob expansion (zsh errors on an unmatched glob before
-the command runs):
+happened on `therm-incentive`). Check common conventions (the same
+directory list `session-start` Step 4b checks — keep both lists in sync if
+a new convention is added), using `find` rather than shell glob expansion
+(zsh errors on an unmatched glob before the command runs):
 
 ```bash
 for dir in .snowflake/cortex/plans specs changes docs/plans; do
@@ -62,7 +81,7 @@ write to `config.json` on explicit yes — same rule `references/config-schema.m
 already states for this field ("always via explicit user confirmation,
 never silently").
 
-## Step 3: Check the memory budget right now
+## Step 4: Check the memory budget right now
 
 Don't wait for the next `wrap-up` to discover this. Load
 `../references/memory-budget.md`, then check both dimensions against
@@ -77,7 +96,7 @@ Compare against `budgetLines` and `budgetKB` (1 KB = 1024 bytes). If over
 either, flag it — don't fix it here; that's `wrap-up`'s synthesis job (see
 `memory-budget.md`'s Synthesis Trigger). Doctor diagnoses, `wrap-up` treats.
 
-## Step 4: Check local runtime cache coherency
+## Step 5: Check local runtime cache coherency
 
 This skill's "local runtime cache" is a single flat file at a path
 exclusive to `project-context-kit` —
@@ -132,6 +151,11 @@ hold content the user wants to keep.
 
 ### Stale concurrency lock check
 
+The lock file's path and format (`pid=`/`host=`/`started=` lines) are
+defined by `session-start` Step 1 and `wrap-up` Step 6 item 2 — if either
+changes that format, this check's parsing needs a matching update; this
+section only re-runs the same staleness check standalone, on demand.
+
 `session-start`/`wrap-up` write an advisory lock at
 `$HOME/.snowflake/cortex/project-context-kit/cache/<sanitized-cwd>.lock`
 while a git-sync step is in progress, and remove it on exit. A lock that
@@ -157,7 +181,7 @@ Report a stale lock, offer to remove it — don't delete it silently, since a
 same synced repo path (rare, but the check is host-scoped for exactly this
 reason).
 
-## Step 5: Cross-machine remote status (informational only)
+## Step 6: Cross-machine remote status (informational only)
 
 ```bash
 git remote -v
@@ -179,10 +203,13 @@ continuity currently looks like:
   `session-start`, not re-checked here). This is the normal case for a
   project that expects to be worked on from more than one machine.
 
-## Step 6: Report
+## Step 7: Report
 
 ```
 ## Memory Doctor — <projectName>
+
+### Plugin version
+- <"up to date (v<version>)" | "config v<configVersion> is behind installed v<version> — see CHANGELOG.md" | "configVersion missing — backfilled to v<version>">
 
 ### Canonical docs
 - [OK|MISSING] <path> — <owns>
@@ -201,18 +228,19 @@ continuity currently looks like:
 - <"no remote configured — memory is local-only on this machine" | "remote: <url>">
 ```
 
-Then apply only the fixes the user explicitly confirms (dangling-path
-removal, `planSources` update). The cache resync (Step 4) and budget report
-(Step 3) don't need per-fix confirmation — resyncing the cache from
-canonical is always safe (canonical wins, by definition), and the budget
-check is read-only until `wrap-up` runs. Step 5's remote status is
-purely informational and never triggers a fix — there is nothing to
-confirm or apply.
+Then apply only the fixes the user explicitly confirms (`configVersion`
+backfill, dangling-path removal, `planSources` update). The cache resync
+(Step 5) and budget report (Step 4) don't need per-fix confirmation —
+resyncing the cache from canonical is always safe (canonical wins, by
+definition), and the budget check is read-only until `wrap-up` runs.
+Step 6's remote status is purely informational and never triggers a fix —
+there is nothing to confirm or apply.
 
 ## Stopping Points
 
-- ✋ Step 1: confirm before removing/editing a `canonicalDocs` entry, `ownershipDoc`, or `semanticRegistry` path
-- ✋ Step 2: confirm before writing `planSources` to `config.json`
+- ✋ Step 1: confirm before backfilling a missing `configVersion`
+- ✋ Step 2: confirm before removing/editing a `canonicalDocs` entry, `ownershipDoc`, or `semanticRegistry` path
+- ✋ Step 3: confirm before writing `planSources` to `config.json`
 
 ## Output
 

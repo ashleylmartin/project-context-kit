@@ -46,3 +46,34 @@
   did NOT add a `Stop`/`SessionEnd` hook that auto-commits/pushes —
   those events can't gather confirmation, which conflicts with the
   existing "never push without asking" rule.
+
+### Adopt mattpocock-skills' authoring discipline for 1.0 — 2026-09-29
+- **Context:** Reviewed mattpocock-skills (a much larger, more mature
+  Claude Code skill plugin) end to end to see what project-context-kit
+  should adopt for a 1.0. Found the two kits barely overlap — matt's kit
+  has no analog to this plugin's memory-budget/session-continuity system
+  at all — but our two "active discipline" vocabulary skills
+  (`domain-vocabulary`, `design-soul`) map onto his `domain-modeling`/
+  `codebase-design`, and he has an explicit authoring standard
+  (`writing-for-agents`) this kit had nothing like.
+- **Decision:** Shipped `writing-for-agents` as a real skill (used both
+  internally and by kit users writing their own docs), added a new
+  `codebase-design` skill (architecture vocabulary, no canonical doc of
+  its own — routes hard trade-offs to `domain-vocabulary`'s decision
+  log), folded domain-modeling's missing techniques into
+  `domain-vocabulary` (concrete-scenario stress-testing, code
+  cross-referencing, an explicit 3-part ADR test, optional multi-context
+  `CONTEXT-MAP.md` support), and added lightweight `configVersion`
+  tracking (`bootstrap` writes it, `doctor` flags a mismatch).
+- **Why:** Did NOT adopt matt's bucket/staging structure (`in-progress/`,
+  `deprecated/`) — this kit is small enough that a flat `skills/`
+  directory doesn't need a promotion pipeline. Did NOT build a config
+  migration engine for the version-awareness addition — nothing in this
+  1.0 release actually breaks `config.json`'s schema (every new
+  capability lives in skill body text, read fresh each session, so
+  already-bootstrapped projects get it automatically); a real migration
+  mechanism should be built when a real breaking change actually happens,
+  not speculatively now. Did NOT rename `domain-vocabulary`/`design-soul`
+  to match matt's `domain-modeling` naming — no functional benefit for a
+  real cost (every `config.json` `kind` value, README row, and
+  cross-reference across 5+ files).

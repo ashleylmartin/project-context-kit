@@ -1,7 +1,7 @@
 {
   "name": "project-context-kit",
   "version": "0.2.0",
-  "description": "Portable, config-driven project context system: budgeted cross-session memory, active docs discipline (domain vocabulary, design soul), a doc-freshness interview, a grep-based semantic drift checker, and cross-machine continuity via git.",
+  "description": "Portable, config-driven project context system: budgeted cross-session memory, active docs discipline (domain vocabulary, design soul, codebase-design), a doc-freshness interview, a grep-based semantic drift checker, an authoring standard for agent-facing docs, and cross-machine continuity via git.",
   "author": {
     "name": "Ashley Martin"
   },
@@ -13,6 +13,8 @@
     "documentation",
     "domain-vocabulary",
     "design-system",
+    "codebase-design",
+    "skill-authoring",
     "drift-detection",
     "productivity"
   ]
