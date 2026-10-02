@@ -84,17 +84,16 @@ never silently").
 ## Step 4: Check the memory budget right now
 
 Don't wait for the next `wrap-up` to discover this. Load
-`../references/memory-budget.md`, then check both dimensions against
+`../references/memory-budget.md`, then check line count against
 `config.json`'s `memoryFile`:
 
 ```bash
 wc -l < "<memoryFile>"
-wc -c < "<memoryFile>"
 ```
 
-Compare against `budgetLines` and `budgetKB` (1 KB = 1024 bytes). If over
-either, flag it — don't fix it here; that's `wrap-up`'s synthesis job (see
-`memory-budget.md`'s Synthesis Trigger). Doctor diagnoses, `wrap-up` treats.
+Compare against `budgetLines`. If over, flag it — don't fix it here;
+that's `wrap-up`'s synthesis job (see `memory-budget.md`'s Synthesis
+Trigger). Doctor diagnoses, `wrap-up` treats.
 
 ## Step 5: Check local runtime cache coherency
 
@@ -137,17 +136,34 @@ same directory the built-in Cortex Code memory tool uses for this project's
 own per-project topic files. `session-start`/`wrap-up` used to sweep that
 directory with `find ... -delete`, which could silently destroy those
 topic files. `project-context-kit` no longer reads or writes that old path
-at all. Check whether it still exists:
+at all.
+
+**This directory is not exclusively a project-context-kit leftover** — it
+is also the live store Cortex Code's built-in per-project memory tool
+writes to right now, completely independent of this plugin. Existence
+alone is never evidence of staleness; a prior run of this check wrongly
+called a project's directory "safe to delete" when a file inside it had
+been written 10 minutes earlier in that same session by the built-in
+memory tool. Check recency, not just existence:
 
 ```bash
 OLD_DIR="$HOME/.snowflake/cortex/memory/projects/$(echo "$PWD" | sed 's|^/||;s|/|-|g')"
 ls -la "$OLD_DIR" 2>/dev/null
+find "$OLD_DIR" -type f -newermt '-1 day' 2>/dev/null
 ```
 
-If it exists, report its contents to the user and note it's safe to delete
-(nothing in this plugin reads it anymore) — but never delete it yourself
-without confirmation, since any file that survived past sweeps may still
-hold content the user wants to keep.
+- If `find` reports any recently-modified file, treat the directory as
+  **live** — almost certainly the built-in memory tool's active
+  per-project store. Report its contents informationally and say nothing
+  about deletion.
+- If nothing recent shows up, still only report its contents and ask the
+  user whether they still want it. Never assert it's "safe to delete" —
+  the built-in memory tool's topic files don't expire, so an old mtime is
+  not evidence they're abandoned.
+- In both cases: "`project-context-kit` has no use for this path" is a
+  statement about this plugin only, never a verdict on whether the
+  directory's contents matter. This check is informational-only — doctor
+  never deletes this directory, with or without confirmation.
 
 ### Stale concurrency lock check
 
@@ -219,7 +235,7 @@ continuity currently looks like:
 - <"configured: <globs>" | "empty, no drift detected" | "empty, but found N file(s) in <dir> — suggest enabling">
 
 ### Budget
-- <memoryFile>: <N> lines / <K> KB (budget: <budgetLines> / <budgetKB>KB) — <OK | OVER, run wrap-up to synthesize>
+- <memoryFile>: <N> lines (budget: <budgetLines>) — <OK | OVER, run wrap-up to synthesize>
 
 ### Local cache coherency
 - <"in sync" | "diverged — resynced from canonical" | "missing — seeded from canonical">

@@ -196,7 +196,7 @@ version — read `version` from `~/.snowflake/cortex/plugins/project-context-kit
 per-user path). This is visibility for `doctor` later, not something to
 ask the user about. Defaults if the user has no strong preference:
 
-- `budgetLines: 80`, `budgetKB: 6` (comp-in-a-box's proven defaults — big
+- `budgetLines: 80` (comp-in-a-box's proven default — big
   enough for real session state, small enough to force pruning).
 - `neverStage`: start with universal always-locally-modified suspects —
   `.env`, `.env.local`, `*.tsbuildinfo`, `node_modules/`, plus anything the
@@ -331,7 +331,7 @@ Write `config.json`'s `memoryReadme` path:
 
 ## Structure
 
-- `<memoryFile>` (max <budgetLines> lines / <budgetKB> KB) — the ONLY memory
+- `<memoryFile>` (max <budgetLines> lines) — the ONLY memory
   file.
 
 ## Rules

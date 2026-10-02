@@ -17,7 +17,6 @@ silently).
   "memoryFile": ".snowflake/cortex/memory/my-app.md",
   "memoryReadme": ".snowflake/cortex/memory/README.md",
   "budgetLines": 80,
-  "budgetKB": 6,
   "ownershipDoc": "docs/KNOWLEDGE_MAP.md",
   "canonicalDocs": [
     { "path": "AGENTS.md", "owns": "commands, structure, conventions, gotchas" },
@@ -44,8 +43,7 @@ silently).
 | `configVersion` | string (semver) | The installed plugin's version at the time `bootstrap` last ran. Visibility only — `doctor` compares it against the currently-installed plugin version and reports a mismatch, pointing at `CHANGELOG.md`. Not a migration mechanism: nothing in this kit rewrites `config.json` automatically off this field. Missing entirely means the project was bootstrapped before this field existed (pre-1.0) — `doctor` offers to backfill it, with confirmation, same as any other fix. |
 | `memoryFile` | string (repo-relative path) | The single git-tracked memory file. One file, not a directory of topic files — that structure is what caused the original bloat this system fixes. |
 | `memoryReadme` | string | Conventions doc for the memory file itself — the Key Principle, budget rule, cross-machine sync note. |
-| `budgetLines` | number | Soft cap on line count. Advisory on its own — see `budgetKB`. |
-| `budgetKB` | number | Hard cap on file size. **Check both** — a dozen paragraph-length bullets can pass a line-count check while blowing past the KB budget. This is the actual over-budget signal that triggers synthesis in `wrap-up`. |
+| `budgetLines` | number | Cap on line count — the memory budget. Over this triggers synthesis in `wrap-up`. |
 | `ownershipDoc` | string or null | Path to the "one concept, one home" ownership-map doc, if the project has one (created by `bootstrap` on request). Null if the project intentionally skips this — `wrap-up`'s pattern-promotion check then just targets `patternPromotionTarget` directly. |
 | `canonicalDocs` | array of `{path, owns, kind?}` | What each canonical doc is authoritative for. `wrap-up` uses this to decide whether something belongs in memory (if it's already covered here, prune it from memory) or should be promoted here instead. Optional `kind` tags a doc's discipline for skills that need to find it by role rather than by hardcoded path: `"vocabulary"` (domain-vocabulary's glossary/ADR doc), `"design"` (design-soul's visual/interaction rules doc), or omitted/`"other"` for anything else (e.g. `AGENTS.md`). At most one entry should carry a given `kind` — if a project has two, the domain-vocabulary/design-soul skills use whichever `bootstrap` registered as the active one and flag the ambiguity rather than guessing. |
 | `planSources` | array of glob patterns | Where in-flight plans/specs live. `wrap-up`'s plan-hygiene step scans all of these. Empty array is valid — means the project does not track plans as files. |
@@ -59,7 +57,7 @@ silently).
 ## Validation rules (`bootstrap` and `help` both check these)
 
 - `memoryFile` and `memoryReadme` must be inside a git-tracked directory (bootstrap creates `.gitkeep`-style tracking by writing real content, never an empty dir).
-- `budgetLines` and `budgetKB` must both be present — one without the other defeats the point (see the `budgetKB` note above).
+- `budgetLines` must be present.
 - `qualityGate` commands are stored as literal strings, run via the shell exactly as given — no templating. If a command needs a working directory other than repo root, the string should `cd` itself.
 - `canonicalDocs[].path` should point at files that exist (or that `bootstrap` just created) — a dangling pointer here means memory has nowhere to defer to, which is how the original system re-accumulated cruft.
 - `releaseNotesFile`, if set, should end in `.html` — `../references/release-notes.md` produces a single-file HTML page (the `html-authoring` skill's sandbox format), not markdown.

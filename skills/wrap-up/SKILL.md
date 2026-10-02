@@ -43,9 +43,9 @@ committed and pushed at every session end, readable on any machine after
      (architecture quick-ref, etc.) — update only on structural change.
 3. PRUNE stale info. If something is now covered by a `canonicalDocs`
    entry, remove it from memory — that's the entry's job now, not memory's.
-4. Load `../references/memory-budget.md`. Check both `budgetLines` and
-   `budgetKB` from `config.json`. If over budget, do the synthesis rewrite
-   described there instead of an incremental edit.
+4. Load `../references/memory-budget.md`. Check `budgetLines` from
+   `config.json`. If over budget, do the synthesis rewrite described there
+   instead of an incremental edit.
 5. **Sweep cruft:** delete stale memory artifacts (`*.bak`, orphaned files —
    this system is one flat file, never an index+topic-file split). `git rm`
    anything tracked.

@@ -1,7 +1,7 @@
 # Memory Budget & Synthesis Rules
 
-Shared by `wrap-up` and `help`. Read `config.json` (`budgetLines`, `budgetKB`)
-before applying these.
+Shared by `wrap-up` and `help`. Read `config.json` (`budgetLines`) before
+applying these.
 
 ## Key Principle
 
@@ -17,12 +17,9 @@ that only sees it once, in a file it doesn't reread every session, drifts.
 
 ## The budget
 
-**Check both dimensions — line count alone is a bad proxy.** A memory file
-can pass an 80-line check while a handful of paragraph-length bullets push it
-past 6KB. Both `budgetLines` and `budgetKB` must be satisfied.
-
-Every bullet should be one sentence. No session-by-session narrative — git
-log and archived plans/specs are the history; memory is not a changelog.
+`budgetLines` is the memory budget — a cap on line count. Every bullet
+should be one sentence. No session-by-session narrative — git log and
+archived plans/specs are the history; memory is not a changelog.
 
 ## Synthesis trigger
 

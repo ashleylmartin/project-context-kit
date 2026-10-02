@@ -1,6 +1,6 @@
 {
   "name": "project-context-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Portable, config-driven project context system for CoCo: cross-session memory, active docs discipline, doc-freshness interview, drift detection, and an agent-facing authoring standard.",
   "repository": {

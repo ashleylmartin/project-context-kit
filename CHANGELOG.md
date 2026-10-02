@@ -1,5 +1,15 @@
 # project-context-kit
 
+## 1.1.0
+
+### Minor Changes
+
+- Fix `doctor`'s stale-memory-dir check so it never claims a directory is
+  "safe to delete" when it may be the live store for Cortex Code's built-in
+  per-project memory tool — now checks recency and always defers to the
+  user. Also drop the `budgetKB` (6KB) memory-size ceiling; `budgetLines`
+  (80) is now the only memory budget.
+
 ## 1.0.0
 
 ### Major Changes

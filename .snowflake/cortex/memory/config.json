@@ -3,7 +3,6 @@
   "memoryFile": ".snowflake/cortex/memory/project-context-kit.md",
   "memoryReadme": ".snowflake/cortex/memory/README.md",
   "budgetLines": 80,
-  "budgetKB": 6,
   "ownershipDoc": "docs/KNOWLEDGE_MAP.md",
   "canonicalDocs": [
     { "path": "AGENTS.md", "owns": "commands, structure, conventions, gotchas" },

@@ -57,8 +57,8 @@ values, not generic text:
 ```
 This project's memory system:
 
-- Memory file: <memoryFile> — currently <N> lines / <K>KB (budget:
-  <budgetLines> lines / <budgetKB>KB)
+- Memory file: <memoryFile> — currently <N> lines (budget:
+  <budgetLines> lines)
 - Canonical docs (memory defers to these — don't duplicate their content):
   <for each canonicalDocs entry: "- <path> — owns: <owns>">
 - Ownership map: <ownershipDoc> OR "not configured — canonicalDocs list in
