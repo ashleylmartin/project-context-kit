@@ -1,5 +1,28 @@
 # project-context-kit
 
+## 1.2.0
+
+### Minor Changes
+
+- Review-driven improvements across the lifecycle skills.
+
+  - **`doctor` gains three checks:** more than one Session State bullet
+    (changelog drift), bullets over 300 characters (counting wrapped lines),
+    and a `CLAUDE.md` that shadows `AGENTS.md` for Claude Code. `wrap-up`
+    treats either memory lint as over budget.
+  - **`bootstrap`'s memory template** now opens with a Key Principle header,
+    keeps Session State to exactly one bullet, and documents optional
+    `Blockers` / `Known Gaps` sections and pointing at dated canonical-doc
+    entries instead of restating them.
+  - **Consistency fixes:** `session-start` now takes the advisory lock around
+    its git pull; both `session-start` and `wrap-up` skip fetch/push cleanly
+    when there's no `origin` remote; the lite-wrap trigger no longer
+    contradicts itself; `config-schema.md` and `memory-budget.md` now name
+    the skills that actually read and write them; shared paths live in a new
+    `references/paths.md`.
+  - Removed the unverified `disable-model-invocation` frontmatter from
+    `bootstrap`.
+
 ## 1.1.0
 
 ### Minor Changes
