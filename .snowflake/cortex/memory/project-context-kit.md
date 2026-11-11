@@ -10,5 +10,5 @@
 - The *installed* plugin (`~/.snowflake/cortex/plugins/project-context-kit`) is a separate copy from this dev repo — fixes here need a release + reinstall (`cortex plugin update project-context-kit`) before other projects see them.
 
 ## Next Session
-- No open work — pick up the next improvement or bug report when one comes in.
+- Fix README's "direct-push shortcut": pushing `main` before the tag lets the Release Action create the tag and GitHub Release itself (it did for v1.2.0).
 
