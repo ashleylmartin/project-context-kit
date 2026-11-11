@@ -70,17 +70,22 @@ are still in lockstep without changing anything.
 ### Skipping the PR (direct-push shortcut)
 
 Steps 3–4 can be run locally on `main` instead of waiting for the PR merge
-(`npm run version`, commit, push, then `npx changeset tag` and push
-`--follow-tags`) when you want the bump to land immediately. Doing this
-has two consequences the PR-merge path doesn't:
+when you want the bump to land immediately:
+
+1. `npm run version`, then commit the version bump.
+2. Push `main` — **don't tag locally first.** The Release Action runs on
+   the push, finds no tag for the new version, and creates both the tag and
+   the GitHub Release itself (this is what happened for v1.2.0).
+3. `git fetch origin tag v<version>` to pull the Action's tag down.
+
+Two things to watch:
 
 - The already-opened "Version Packages" PR becomes stale the moment your
   push lands (it would just re-apply what's already on `main`) — close it
   (`gh pr close <number>`) rather than leaving it open.
-- The Release Action still runs on your push, but its `npx changeset tag`
-  step finds the tag already exists and no-ops — it only creates a GitHub
-  Release when *it's* the one that just created the tag. Create the
-  Release manually to match every prior version:
+- If you do tag and push the tag before the Action runs, its
+  `npx changeset tag` step finds the tag already exists and no-ops, so no
+  GitHub Release gets created — make it manually:
   `gh release create v<version> --title v<version> --notes-file <(awk '/^## <version>/{f=1;next}/^## /{f=0}f' CHANGELOG.md) --latest`.
 
 Needs a `GITHUB_TOKEN` in the environment either way — `changeset version`'s
