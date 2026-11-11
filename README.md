@@ -16,7 +16,7 @@ machine with only this plugin installed.
 | `bootstrap` | command-only | One-time setup: creates `config.json`, the memory file, and (optionally) canonical/ownership/vocabulary/design docs. Records the installed plugin version for `doctor` to check later. |
 | `session-start` | command + natural language | Run at the start of every session: git sync, cold-start memory bootstrap, active plans. |
 | `wrap-up` | command + natural language | Run at the end of every session: memory sync, plan hygiene, pattern promotion, quality gate, commit. |
-| `doctor` | command + natural language | Audit an already-bootstrapped project for drift — including a stale `configVersion` against the installed plugin. Fixes only with confirmation. |
+| `doctor` | command + natural language | Audit an already-bootstrapped project for drift — stale `configVersion`, changelog-style Session State, paragraph-length bullets, a CLAUDE.md shadowing AGENTS.md. Diagnoses only; fixes only with confirmation. |
 | `help` | command + natural language | Config-aware guide — generic if unconfigured, concrete once set up — plus a map of how every skill in this kit fits together. |
 | `domain-vocabulary` | command + natural language | Active glossary/ADR-lite discipline for domain terms: definitions, fuzzy-term challenges, concrete-scenario stress-testing, code cross-referencing, and a 3-part test for when a decision is actually ADR-worthy. Supports multi-context repos via `CONTEXT-MAP.md`. |
 | `design-soul` | command + natural language | Active discipline for design tokens, component conventions, interaction rules — same ADR-lite/scenario-stress-testing shape as `domain-vocabulary`, for visual/interaction language instead of naming. |

@@ -77,3 +77,15 @@
   to match matt's `domain-modeling` naming — no functional benefit for a
   real cost (every `config.json` `kind` value, README row, and
   cross-reference across 5+ files).
+
+### Enforce memory shape with doctor lints, not a size cap — 2026-11-11
+- **Context:** A review of the 7 projects using this kit found every memory
+  file under its 80-line budget, yet Session State had turned into a
+  changelog (up to 7 dated bullets) and single bullets ran to 600+
+  characters — the line budget alone wasn't preventing drift.
+- **Decision:** Session State is exactly one bullet, replaced each wrap.
+  `doctor` flags more than one Session State bullet and any bullet over 300
+  characters (counting wrapped lines); `wrap-up` treats either as over
+  budget and synthesizes. No byte/token cap (see `.agents/out-of-scope.md`).
+- **Why:** The lints name the actual failure so the fix is obvious; a total
+  size cap would fire on the same files without saying what's wrong.

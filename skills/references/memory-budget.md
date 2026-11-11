@@ -1,7 +1,7 @@
 # Memory Budget & Synthesis Rules
 
-Shared by `wrap-up` and `help`. Read `config.json` (`budgetLines`) before
-applying these.
+Shared by `wrap-up`, `doctor`, and `help`. Read `config.json`
+(`budgetLines`) before applying these.
 
 ## Key Principle
 
@@ -21,7 +21,15 @@ that only sees it once, in a file it doesn't reread every session, drifts.
 should be one sentence. No session-by-session narrative — git log and
 archived plans/specs are the history; memory is not a changelog.
 
+Sections: `Session State` (exactly one bullet, replaced each wrap),
+`Gotchas`, `Next Session`, and optionally `Blockers` / `Known Gaps` (present
+only while non-empty). The file opens with a two-line Key Principle header.
+
 ## Synthesis trigger
+
+Memory counts as **over budget** if any of these hold (`doctor` Step 4 has
+the exact checks): line count over `budgetLines`, more than one bullet
+under Session State, or any bullet over 300 characters.
 
 If memory is over budget at the **start** of any wrap (lite, full, or
 sprint), do a rewrite-once synthesis instead of an incremental edit:

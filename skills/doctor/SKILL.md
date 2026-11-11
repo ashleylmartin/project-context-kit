@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: "Audit an already-bootstrapped project-memory setup for drift: a stale configVersion against the installed plugin, dangling canonicalDocs/ownershipDoc paths, stale planSources, an over-budget memory file, or a local runtime cache that's diverged from the git-tracked canonical file. Reports findings and fixes only with confirmation -- never silently. Triggers: doctor, memory doctor, audit memory, check memory setup, is memory drifted, fix memory drift, validate memory config, is this project's config out of date, what version was this bootstrapped with."
+description: "Audit an already-bootstrapped project-memory setup for drift: a stale configVersion against the installed plugin, dangling canonicalDocs/ownershipDoc paths, stale planSources, an over-budget memory file (including changelog-style Session State or paragraph-length bullets), a CLAUDE.md shadowing AGENTS.md, or a local runtime cache that's diverged from the git-tracked canonical file. Reports findings and fixes only with confirmation -- never silently. Triggers: doctor, memory doctor, audit memory, check memory setup, is memory drifted, fix memory drift, validate memory config, is this project's config out of date, what version was this bootstrapped with."
 ---
 
 # Project Memory — Doctor
@@ -63,9 +63,8 @@ If `planSources` is **not** empty, skip this check — already configured.
 If it **is** empty, this may be intentional (the project genuinely doesn't
 track plans as files) or it may be stale (plan-tracking started after
 bootstrap and nothing ever revisited the config — this is exactly what
-happened on `therm-incentive`). Check common conventions (the same
-directory list `session-start` Step 4b checks — keep both lists in sync if
-a new convention is added), using `find` rather than shell glob expansion
+happened on `therm-incentive`). Check the plan-directory conventions listed
+in `../references/paths.md`, using `find` rather than shell glob expansion
 (zsh errors on an unmatched glob before the command runs):
 
 ```bash
@@ -81,6 +80,25 @@ write to `config.json` on explicit yes — same rule `references/config-schema.m
 already states for this field ("always via explicit user confirmation,
 never silently").
 
+## Step 3b: Check for a CLAUDE.md shadowing AGENTS.md
+
+Claude Code reads `CLAUDE.md` and ignores `AGENTS.md` when both exist, so
+conventions written to `AGENTS.md` silently never reach it:
+
+```bash
+if [ -f AGENTS.md ] && [ -f CLAUDE.md ]; then
+  grep -v '^[[:space:]]*$' CLAUDE.md | grep -qv '^@AGENTS.md$' \
+    && echo "SHADOW: CLAUDE.md has its own content alongside AGENTS.md" \
+    || echo "OK: CLAUDE.md is an @AGENTS.md shim"
+fi
+```
+
+On `SHADOW`, show the user both files' contents and ask whether to merge
+anything unique from `CLAUDE.md` into `AGENTS.md` and replace `CLAUDE.md`
+with the single line `@AGENTS.md`. Never rewrite either file without that
+confirmation — `CLAUDE.md` may hold content another tool or teammate
+relies on.
+
 ## Step 4: Check the memory budget right now
 
 Don't wait for the next `wrap-up` to discover this. Load
@@ -89,11 +107,26 @@ Don't wait for the next `wrap-up` to discover this. Load
 
 ```bash
 wc -l < "<memoryFile>"
+# Session State bullets — >1 means changelog drift
+awk '/^## /{s=$0} s=="## Session State" && /^- /{n++} END{print n+0}' "<memoryFile>"
+# Bullets over 300 chars, counting wrapped continuation lines
+awk '/^- /{if(l>300)print "line "b": "l" chars"; b=NR; l=length; next}
+     /^  +[^ ]/ && b{l+=length; next}
+     {if(l>300)print "line "b": "l" chars"; b=0; l=0}
+     END{if(l>300)print "line "b": "l" chars"}' "<memoryFile>"
 ```
 
-Compare against `budgetLines`. If over, flag it — don't fix it here;
-that's `wrap-up`'s synthesis job (see `memory-budget.md`'s Synthesis
-Trigger). Doctor diagnoses, `wrap-up` treats.
+Compare the line count against `budgetLines`. Also flag:
+
+- **Changelog drift** — more than one bullet under `## Session State`.
+  Session State is one current bullet, replaced each wrap, never appended.
+- **Over-long bullets** — any bullet (including its wrapped continuation
+  lines) over 300 characters. Bullets are one sentence; a paragraph-length
+  bullet gets around the line budget.
+
+Don't fix any of these here; that's `wrap-up`'s synthesis job (see
+`memory-budget.md`'s Synthesis Trigger — any of the three counts as over
+budget). Doctor diagnoses, `wrap-up` treats.
 
 ## Step 5: Check local runtime cache coherency
 
@@ -167,9 +200,7 @@ find "$OLD_DIR" -type f -newermt '-1 day' 2>/dev/null
 
 ### Stale concurrency lock check
 
-The lock file's path and format (`pid=`/`host=`/`started=` lines) are
-defined by `session-start` Step 1 and `wrap-up` Step 6 item 2 — if either
-changes that format, this check's parsing needs a matching update; this
+The lock's path and format are defined in `../references/paths.md`; this
 section only re-runs the same staleness check standalone, on demand.
 
 `session-start`/`wrap-up` write an advisory lock at
@@ -236,6 +267,11 @@ continuity currently looks like:
 
 ### Budget
 - <memoryFile>: <N> lines (budget: <budgetLines>) — <OK | OVER, run wrap-up to synthesize>
+- Session bullets: <N> — <OK | changelog drift>
+- Over-long bullets: <none | line numbers>
+
+### Instruction files
+- <"no CLAUDE.md" | "CLAUDE.md is an @AGENTS.md shim" | "CLAUDE.md shadows AGENTS.md">
 
 ### Local cache coherency
 - <"in sync" | "diverged — resynced from canonical" | "missing — seeded from canonical">
@@ -245,7 +281,7 @@ continuity currently looks like:
 ```
 
 Then apply only the fixes the user explicitly confirms (`configVersion`
-backfill, dangling-path removal, `planSources` update). The cache resync
+backfill, dangling-path removal, `planSources` update, `CLAUDE.md` shim). The cache resync
 (Step 5) and budget report (Step 4) don't need per-fix confirmation —
 resyncing the cache from canonical is always safe (canonical wins, by
 definition), and the budget check is read-only until `wrap-up` runs.
@@ -257,6 +293,7 @@ there is nothing to confirm or apply.
 - ✋ Step 1: confirm before backfilling a missing `configVersion`
 - ✋ Step 2: confirm before removing/editing a `canonicalDocs` entry, `ownershipDoc`, or `semanticRegistry` path
 - ✋ Step 3: confirm before writing `planSources` to `config.json`
+- ✋ Step 3b: confirm before editing `CLAUDE.md` or `AGENTS.md`
 
 ## Output
 
