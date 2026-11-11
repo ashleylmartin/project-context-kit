@@ -1,7 +1,6 @@
 ---
 name: bootstrap
 description: "One-time setup of the project-memory system in a new project: creates the config file, the budgeted memory file, the memory README, and (optionally) a lightweight ownership-map doc and a minimal conventions doc. Run this before session-start or wrap-up will work. Triggers: bootstrap memory, set up project memory, init memory system, memory bootstrap, set up session-start and wrap-up."
-disable-model-invocation: true
 ---
 
 # Project Memory — Bootstrap
@@ -301,6 +300,9 @@ Load `../references/memory-budget.md` for the budget rules, then write
 ```markdown
 # <Project Name> — project memory
 
+> If it can be derived from a `canonicalDocs` entry or the codebase, it does
+> NOT belong here. Memory stores ephemeral state only.
+
 ## Session State
 - **Session:** [today's date] (s1, start) · `[current branch]` · no active work yet.
 
@@ -310,6 +312,15 @@ Load `../references/memory-budget.md` for the budget rules, then write
 ## Next Session
 - [what should happen first]
 ```
+
+Session State is always **exactly one** bullet — each wrap replaces it,
+never appends (more than one is the changelog drift `doctor` flags).
+
+Two optional sections, added only when they have content and removed when
+they empty out: `## Blockers` (waiting on a person, access, or an external
+system) and `## Known Gaps` (deliberately unfinished or unverified work).
+When a gotcha or decision is already recorded in a canonical doc, point at
+it ("see CONTEXT.md 2026-11-05") instead of restating it.
 
 Keep it well under budget — this is a seed, not a filled-in file. Padding it
 with placeholder content defeats the discipline this system exists to

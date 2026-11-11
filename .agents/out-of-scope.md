@@ -51,3 +51,19 @@ kit's equivalent is `domain-vocabulary`. Renaming to match would cost a
 `config.json` `kind` value, a README row, and every cross-reference across
 5+ files, for zero behavior change — the names already mean the same thing
 in context. Not worth it.
+
+## No speculative skill frontmatter (`disable-model-invocation`, `allowed-tools`)
+
+`disable-model-invocation` isn't in the Agent Skills spec, and
+`allowed-tools` is experimental there; neither is confirmed to do anything
+in CoCo's `skill` tool, which routes off `description` alone. A field that
+looks like a guarantee but isn't enforced is worse than none — readers
+trust it. `bootstrap` carried `disable-model-invocation` until 1.2.0; it
+was removed. Revisit only if CoCo documents support for either field.
+
+## No byte/token ceiling on the memory file
+
+Dropped `budgetKB` in 1.1.0 on purpose. The failure a byte cap was meant to
+catch (paragraph-length bullets getting around the line budget) is caught
+instead by `doctor`'s 300-character bullet lint and one-Session-bullet
+lint, which point at the actual problem rather than a total size.

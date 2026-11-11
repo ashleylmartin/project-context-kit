@@ -30,13 +30,10 @@ single source of truth `config.json`'s `canonicalDocs` points at),
 `domain-vocabulary`/`design-soul`), **active discipline** (touched inline,
 never batched at wrap-up).
 
-`bootstrap/SKILL.md` carries a `disable-model-invocation: true` frontmatter
-field — this is speculative (CoCo's `skill` tool routes purely off
-`description` text as far as could be confirmed; there's no documented
-support for excluding a skill from model invocation). Don't rely on it
-doing anything; if a skill genuinely needs to be user-typed only, that has
-to come from how its `description`'s trigger phrases read, same as every
-other skill here.
+Skill frontmatter is `name` + `description` only. Don't add fields CoCo
+isn't confirmed to read (see `.agents/out-of-scope.md`); if a skill needs
+to be user-typed only, that has to come from how its `description`'s
+trigger phrases read.
 
 ### What must stay in sync when you add, rename, or remove a skill
 

@@ -35,10 +35,14 @@ committed and pushed at every session end, readable on any machine after
 
 1. Read it via the `read` tool.
 2. Update ONLY the sections that actually changed this session — typically:
-   - **Session State** — new date, branch, active work, "Next" items.
+   - **Session State** — replace the single bullet (new date, branch,
+     active work); never append a second one.
    - **Gotchas** — add only if a genuinely non-obvious issue was discovered
      (something the codebase or a `canonicalDocs` entry doesn't already
-     make clear).
+     make clear). If it's recorded in a canonical doc, point at that entry
+     instead of restating it.
+   - **Blockers** / **Known Gaps** (optional) — add the section when there's
+     something to list, remove it when it empties out.
    - Any other project-specific section already established in this file
      (architecture quick-ref, etc.) — update only on structural change.
 3. PRUNE stale info. If something is now covered by a `canonicalDocs`
@@ -189,8 +193,10 @@ with everything else.
    - Bundle the memory-file update (Step 1) into the same commit as the
      work it documents, or its own `chore(memory): ...` commit if no other
      work was uncommitted.
-6. **Fetch, then show what's about to leave the machine.** Before asking
-   for push confirmation:
+6. **Fetch, then show what's about to leave the machine.** If there's no
+   `origin` remote (`git remote get-url origin` fails), skip items 6–7 —
+   the commits stay local; note that in the summary. Otherwise, before
+   asking for push confirmation:
    ```bash
    git fetch origin
    git log --oneline origin/<branch>..HEAD          # commits about to be pushed
@@ -244,8 +250,8 @@ with everything else.
 
 ## Lite Wrap-Up
 
-When the session was a single small fix (few files, no architectural
-change, no new plans), skip the heavy steps and run only:
+Use lite wrap when the trigger at the end of this section applies, and
+skip the heavy steps — run only:
 
 1. **Memory** — update Session State (date, "Next" items); honor the budget
    (synthesize if over) and sync the local cache.
