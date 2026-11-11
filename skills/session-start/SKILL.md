@@ -22,7 +22,9 @@ is no memory file or budget to sync without it.
 ## Step 1: Git Sync
 
 Before syncing, check for another live session in this same working
-directory (advisory only — never blocks):
+directory, then take the advisory lock for the duration of the sync (paths
+are defined once in `../references/paths.md`; advisory only — never
+blocks):
 
 ```bash
 LOCK="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').lock"
@@ -35,7 +37,15 @@ if [ -f "$LOCK" ]; then
     rm -f "$LOCK"   # stale — different host, or PID no longer running
   fi
 fi
+if [ ! -f "$LOCK" ]; then
+  mkdir -p "$(dirname "$LOCK")"
+  printf 'pid=%s\nhost=%s\nstarted=%s\n' "$$" "$(hostname)" "$(date -u +%FT%TZ)" > "$LOCK"
+fi
 ```
+
+Remove `$LOCK` once Call 1 below finishes, however it exits (synced,
+already up to date, skipped for no remote, or conflicted) — but only if
+this step created it, never another live session's lock.
 
 If the notice fires, mention it to the user in the Step 5 report ("another
 session may be active — proceed with caution") but continue normally; this
@@ -46,13 +56,17 @@ Run as two separate calls (so status/log always run even if pull fails):
 ```bash
 # Call 1 — sync (--autostash silently handles always-dirty local files
 # listed in config.json's neverStage, e.g. .env.local)
-git fetch origin
-LOCAL=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse origin/$(git branch --show-current) 2>/dev/null)
-if [ "$LOCAL" = "$REMOTE" ]; then
-  echo "Already up to date."
+if git remote get-url origin >/dev/null 2>&1; then
+  git fetch origin
+  LOCAL=$(git rev-parse HEAD)
+  REMOTE=$(git rev-parse origin/$(git branch --show-current) 2>/dev/null)
+  if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Already up to date."
+  else
+    git pull --rebase --autostash
+  fi
 else
-  git pull --rebase --autostash
+  echo "No origin remote — skipping fetch/pull."
 fi
 ```
 
@@ -63,10 +77,9 @@ git branch --show-current && git status --short && git log --oneline -5
 
 - If `git pull --rebase --autostash` reports **conflicts**: stop and resolve
   before proceeding — never build on a conflicted state.
-- If there's no `origin` remote yet (a brand-new local-only repo), skip the
-  fetch/pull and just report branch/status/log — cross-machine sync isn't
-  possible until a remote exists, but everything else in this skill still
-  works.
+- If there's no `origin` remote yet (a brand-new local-only repo), the
+  guard above skips fetch/pull — cross-machine sync isn't possible until a
+  remote exists, but everything else in this skill still works.
 
 ## Step 2: Sync Memory
 
@@ -78,13 +91,9 @@ on another machine:
 MEMORY_FILE="<config.json memoryFile>"
 LOCAL_MEM="$HOME/.snowflake/cortex/project-context-kit/cache/$(echo "$PWD" | sed 's|^/||;s|/|-|g').md"
 mkdir -p "$(dirname "$LOCAL_MEM")"
-if [ ! -s "$LOCAL_MEM" ]; then
-  cp "$MEMORY_FILE" "$LOCAL_MEM" 2>/dev/null || true
-  echo "COLD START: memory bootstrapped from git-tracked file"
-else
-  cp "$MEMORY_FILE" "$LOCAL_MEM" 2>/dev/null || true
-  echo "Memory synced: $(wc -l < "$LOCAL_MEM") lines"
-fi
+[ -s "$LOCAL_MEM" ] || echo "COLD START: memory bootstrapped from git-tracked file"
+cp "$MEMORY_FILE" "$LOCAL_MEM" 2>/dev/null || true
+echo "Memory synced: $(wc -l < "$LOCAL_MEM") lines"
 ```
 
 This cache lives at a path exclusively owned by `project-context-kit` — one
@@ -99,7 +108,9 @@ other-machine `wrap-up`.
 ## Step 3: Read Memory and Surface Context
 
 1. Read `config.json`'s `memoryFile` (via the `read` tool, not the shell —
-   avoids truncation surprises on larger files).
+   avoids truncation surprises on larger files). Keep the Key Principle in
+   mind for the whole session: if it can be derived from a `canonicalDocs`
+   entry or the codebase, it doesn't belong in memory.
 2. Surface the **Session State** section (branch, last commit, "Next"
    items) to the user.
 

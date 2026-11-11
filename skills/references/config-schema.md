@@ -3,10 +3,11 @@
 This file is the single generalization seam. Every other skill in this
 plugin (`session-start`, `wrap-up`, `doctor`, `help`, `domain-vocabulary`,
 `design-soul`, `semantic-registry`) reads it instead of hardcoding paths,
-commands, or project names. `bootstrap` is the only skill that writes it
-(aside from `wrap-up`, which may update `planSources` or `canonicalDocs` if
-the user adds one mid-project — always via explicit user confirmation, never
-silently).
+commands, or project names. `bootstrap` writes it initially; afterwards
+only `doctor` (backfilling `configVersion`, or updating `planSources` /
+`canonicalDocs` / `semanticRegistry` paths) and `semantic-registry` (adding
+`semanticRegistry` on opt-in) write it — always via explicit user
+confirmation, never silently.
 
 ## Fields
 
@@ -54,7 +55,7 @@ silently).
 | `releaseNotesFile` | string (repo-relative `.html` path) or null | If set, `wrap-up` full/sprint modes maintain it as a living doc via `../references/release-notes.md` (a real adapted skill — signal gathering, audience/newsworthiness categorization, single-file HTML output). Each run inserts one new dated entry, then also collapses old entries into a summary and removes verifiably superseded content — see that file for the full mechanic and its since-commit anchor. If null, that step is skipped entirely — it is optional, not core to the memory system. |
 | `commitFooter` | string | Appended to every commit message `wrap-up` creates. |
 
-## Validation rules (`bootstrap` and `help` both check these)
+## Validation rules (`bootstrap` applies these on write, `doctor` on audit; `help` only reports)
 
 - `memoryFile` and `memoryReadme` must be inside a git-tracked directory (bootstrap creates `.gitkeep`-style tracking by writing real content, never an empty dir).
 - `budgetLines` must be present.
